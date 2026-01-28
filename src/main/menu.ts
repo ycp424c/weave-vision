@@ -36,6 +36,18 @@ export function registerAppMenu(mainWindow: BrowserWindow): void {
       ]
     },
     {
+      label: '编辑',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectAll' }
+      ]
+    },
+    {
       label: 'AI',
       submenu: [
         { label: 'AI 命名/打标签', accelerator: 'CmdOrCtrl+K', click: () => send('ai:autoTag') },
@@ -57,4 +69,3 @@ export function registerAppMenu(mainWindow: BrowserWindow): void {
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
-
