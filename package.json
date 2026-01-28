@@ -1,7 +1,7 @@
 {
-  "name": "resource-manager",
+  "name": "weave-vision",
   "version": "1.0.0",
-  "description": "作品资源管理工具（图片/视频/标签/AI命名与打标）",
+  "description": "织影（WeaveVision）：图片/视频/标签/智能文件夹/AI命名与打标",
   "main": "./out/main/index.js",
   "author": "",
   "homepage": "",
