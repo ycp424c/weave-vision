@@ -10,6 +10,16 @@ Meaning:
 
 > 中文版： [README.md](file:///Users/justynchen/Documents/code/resource-manager/README.md)
 
+## Screenshots
+
+Main UI:
+
+![WeaveVision main UI](resources/demo.png)
+
+AI rename/tag (preview before applying):
+
+![WeaveVision AI preview](resources/demo-ai-tag.png)
+
 ## Contents
 
 - [Features](#features)

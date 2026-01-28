@@ -10,6 +10,16 @@
 
 > English version: [README_EN.md](file:///Users/justynchen/Documents/code/resource-manager/README_EN.md)
 
+## 截图
+
+主界面：
+
+![织影 WeaveVision 主界面](resources/demo.png)
+
+AI 命名/打标签（预览确认）：
+
+![织影 WeaveVision AI 结果预览](resources/demo-ai-tag.png)
+
 ## 目录
 
 - [功能概览](#功能概览)
