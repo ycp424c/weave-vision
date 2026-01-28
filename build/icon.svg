@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b0c10" />
+      <stop offset="1" stop-color="#121218" />
+    </linearGradient>
+    <linearGradient id="beak" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffb85c" />
+      <stop offset="1" stop-color="#ff8a3d" />
+    </linearGradient>
+    <linearGradient id="ice" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7fb3ff" stop-opacity="0.35" />
+      <stop offset="1" stop-color="#7fb3ff" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" rx="96" fill="url(#bg)" />
+
+  <g opacity="0.9">
+    <polygon points="60,410 160,360 260,410 160,460" fill="url(#ice)" />
+    <polygon points="260,410 352,352 452,404 352,460" fill="url(#ice)" />
+  </g>
+
+  <g>
+    <polygon points="256,82 318,118 300,178 256,158 212,178 194,118" fill="#1a1c22" />
+    <polygon points="194,118 256,158 212,178 160,210 150,152" fill="#14161b" />
+    <polygon points="318,118 362,152 352,210 300,178 256,158" fill="#14161b" />
+
+    <polygon points="160,210 212,178 256,220 210,260 158,262" fill="#101217" />
+    <polygon points="352,210 354,262 302,260 256,220 300,178" fill="#101217" />
+    <polygon points="210,260 256,220 302,260 256,412 196,368" fill="#0c0d11" />
+    <polygon points="210,260 196,368 150,330 158,262" fill="#0b0c10" />
+    <polygon points="302,260 354,262 362,330 316,368" fill="#0b0c10" />
+
+    <polygon points="256,168 300,178 256,220 212,178" fill="#2a2d36" />
+    <polygon points="212,178 256,220 210,260 188,220" fill="#242834" />
+    <polygon points="300,178 324,220 302,260 256,220" fill="#242834" />
+
+    <polygon points="256,220 302,260 316,368 256,412 196,368 210,260" fill="#e9eef6" />
+    <polygon points="210,260 256,220 256,412 196,368" fill="#dfe6f0" />
+    <polygon points="302,260 316,368 256,412 256,220" fill="#f2f6fb" />
+
+    <polygon points="164,270 210,260 196,368 150,330" fill="#12141a" />
+    <polygon points="348,270 362,330 316,368 302,260" fill="#12141a" />
+
+    <polygon points="232,238 256,220 280,238 256,254" fill="url(#beak)" />
+    <polygon points="256,254 280,238 288,256 256,266" fill="#ff7a2f" />
+    <polygon points="232,238 256,254 256,266 224,256" fill="#ff9a45" />
+
+    <polygon points="214,210 236,198 248,218 224,228" fill="#0b0c10" />
+    <polygon points="298,210 288,228 264,218 276,198" fill="#0b0c10" />
+    <polygon points="224,228 248,218 246,236 222,244" fill="#0e1015" />
+    <polygon points="288,228 290,244 266,236 264,218" fill="#0e1015" />
+
+    <polygon points="228,226 246,220 244,232 228,236" fill="#eaf2ff" opacity="0.95" />
+    <polygon points="266,220 284,226 284,236 268,232" fill="#eaf2ff" opacity="0.95" />
+
+    <polygon points="196,368 256,412 232,448 188,426" fill="#ffb85c" />
+    <polygon points="256,412 316,368 324,426 280,448" fill="#ffb85c" />
+    <polygon points="188,426 232,448 214,466 176,452" fill="#ff9a45" />
+    <polygon points="324,426 336,452 298,466 280,448" fill="#ff9a45" />
+  </g>
+</svg>
+

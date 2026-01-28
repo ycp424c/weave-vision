@@ -1,0 +1,701 @@
+@import './base.css';
+
+body {
+  margin: 0;
+  overflow: hidden;
+  user-select: none;
+  background: #0b0c10;
+  color: #e6e6e6;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) rgba(255, 255, 255, 0.06);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+#root {
+  height: 100vh;
+}
+
+.app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: 220px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(18, 18, 24, 0.9);
+  -webkit-app-region: drag;
+}
+
+.topbar button {
+  -webkit-app-region: no-drag;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.path {
+  font-size: 12px;
+  opacity: 0.7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.search {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e6e6e6;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 600;
+  width: 180px;
+}
+
+button {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e6e6e6;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 600;
+}
+
+button:disabled {
+  opacity: 0.5;
+}
+
+.layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 240px 1fr 340px;
+  min-height: 0;
+}
+
+.sidebar {
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px;
+  overflow: auto;
+}
+
+.navSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.7;
+  margin: 8px 0 4px;
+}
+
+.nav {
+  text-align: left;
+  width: 100%;
+  border-radius: 10px;
+  padding: 10px 10px;
+}
+
+.nav.active {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.nav.navNew {
+  border-color: rgba(153, 210, 255, 0.55);
+  background: rgba(153, 210, 255, 0.12);
+  font-weight: 800;
+}
+
+.nav.navNew:hover {
+  background: rgba(153, 210, 255, 0.18);
+}
+
+.nav.navManage {
+  border-color: rgba(255, 205, 140, 0.45);
+  background: rgba(255, 205, 140, 0.1);
+  font-weight: 800;
+}
+
+.nav.navManage:hover {
+  background: rgba(255, 205, 140, 0.16);
+}
+
+.navRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 2px 0;
+}
+
+.navRowMain {
+  text-align: left;
+  width: 100%;
+  border-radius: 10px;
+  padding: 10px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e6e6e6;
+  font-weight: 700;
+}
+
+.navRow.active .navRowMain {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.navRowActions {
+  display: flex;
+  gap: 6px;
+}
+
+.navIconBtn {
+  padding: 6px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.navIconBtn.danger {
+  border-color: rgba(255, 120, 120, 0.35);
+  background: rgba(255, 120, 120, 0.08);
+}
+
+.smartCreate {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.smartCreate input,
+.smartCreate select {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e6e6e6;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 600;
+}
+
+.smartCreateActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.smartManageList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.smartManageRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.smartManageName {
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.smartManageActions {
+  display: flex;
+  gap: 8px;
+}
+
+.content {
+  flex: 1;
+  overflow: auto;
+  padding: 12px;
+  min-height: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.item {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.itemCheck {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: rgba(18, 18, 24, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  -webkit-app-region: no-drag;
+}
+
+.itemCheck input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: rgba(153, 210, 255, 0.95);
+}
+
+.item.selected {
+  border-color: rgba(153, 210, 255, 0.9);
+  box-shadow: 0 0 0 1px rgba(153, 210, 255, 0.2);
+}
+
+.inspector {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px;
+  overflow: auto;
+  min-height: 0;
+}
+
+.inspectorEmpty {
+  opacity: 0.7;
+  font-size: 12px;
+  padding: 10px;
+}
+
+.inspectorInner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.selectionInfo {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.preview {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.previewMedia {
+  width: 100%;
+  height: 240px;
+  object-fit: contain;
+  display: block;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.field input,
+.field textarea {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e6e6e6;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 600;
+}
+
+.field textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+}
+
+.tagRemove {
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+.tagAdd {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.tagInputWrap {
+  position: relative;
+}
+
+.tagSuggest {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(18, 18, 24, 0.98);
+  z-index: 20;
+}
+
+.tagSuggestItem {
+  padding: 8px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.tagSuggestItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sources {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow: auto;
+}
+
+.source {
+  font-size: 11px;
+  opacity: 0.8;
+  word-break: break-all;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.dropOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 110;
+  pointer-events: none;
+}
+
+.dropCard {
+  padding: 20px 22px;
+  border: 1px dashed rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  background: rgba(18, 18, 24, 0.95);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.modal {
+  width: 520px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  background: rgba(18, 18, 24, 0.98);
+  padding: 14px;
+}
+
+.modalTitle {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modalBody input {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e6e6e6;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 600;
+}
+
+.modalBody select {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e6e6e6;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 600;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.tagLibraryList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.tagLibraryRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tagLibraryName {
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tagLibraryName input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.tagLibraryActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.errorText {
+  font-size: 12px;
+  opacity: 0.9;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.aiLoadingRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.aiLoadingText {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.aiSpinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-top-color: rgba(153, 210, 255, 0.9);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.aiPreviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  max-height: 340px;
+  overflow: auto;
+}
+
+.aiPreviewRow {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.aiPreviewHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.aiPreviewFilename {
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0.9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aiPreviewBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aiPreviewLine {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.aiPreviewLabel {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.aiPreviewValue {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.thumb {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.thumb.placeholder {
+  display: block;
+}
+
+.caption {
+  padding: 8px 10px;
+  font-size: 12px;
+  opacity: 0.9;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 420px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.cardActions {
+  display: flex;
+  gap: 10px;
+}
