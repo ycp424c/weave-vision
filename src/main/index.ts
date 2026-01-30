@@ -30,6 +30,7 @@ function createWindow(): BrowserWindow {
     width: 900,
     height: 670,
     show: false,
+    title: '织影-WeaveVision',
     autoHideMenuBar: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {

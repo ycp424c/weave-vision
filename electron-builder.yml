@@ -1,5 +1,5 @@
 appId: com.resource.manager
-productName: ResourceManager
+productName: 织影-WeaveVision
 directories:
   buildResources: build
 files:
