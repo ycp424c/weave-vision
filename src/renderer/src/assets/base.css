@@ -1,34 +1,15 @@
 :root {
-  --ev-c-white: #ffffff;
-  --ev-c-white-soft: #f8f8f8;
-  --ev-c-white-mute: #f2f2f2;
+  --color-background: #1e1e1e;
+  --color-panel: #252526;
+  --color-border: #333333;
+  --color-accent: #4cc71e;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #888888;
+  --text-tertiary: #cccccc;
 
-  --ev-c-black: #1b1b1f;
-  --ev-c-black-soft: #222222;
-  --ev-c-black-mute: #282828;
-
-  --ev-c-gray-1: #515c67;
-  --ev-c-gray-2: #414853;
-  --ev-c-gray-3: #32363f;
-
-  --ev-c-text-1: rgba(255, 255, 245, 0.86);
-  --ev-c-text-2: rgba(235, 235, 245, 0.6);
-  --ev-c-text-3: rgba(235, 235, 245, 0.38);
-
-  --ev-button-alt-border: transparent;
-  --ev-button-alt-text: var(--ev-c-text-1);
-  --ev-button-alt-bg: var(--ev-c-gray-3);
-  --ev-button-alt-hover-border: transparent;
-  --ev-button-alt-hover-text: var(--ev-c-text-1);
-  --ev-button-alt-hover-bg: var(--ev-c-gray-2);
-}
-
-:root {
-  --color-background: var(--ev-c-black);
-  --color-background-soft: var(--ev-c-black-soft);
-  --color-background-mute: var(--ev-c-black-mute);
-
-  --color-text: var(--ev-c-text-1);
+  --color-hover: #37373d;
+  --color-input-bg: #252526; /* Or darker if needed */
 }
 
 *,
@@ -45,7 +26,7 @@ ul {
 
 body {
   min-height: 100vh;
-  color: var(--color-text);
+  color: var(--text-primary);
   background: var(--color-background);
   line-height: 1.6;
   font-family:

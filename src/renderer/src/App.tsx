@@ -1,5 +1,67 @@
 import { useEffect, useMemo, useState } from 'react'
 
+// --- Icons ---
+const IconLibrary = () => (
+  <svg className="navIcon" viewBox="0 0 24 24">
+    <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z" />
+  </svg>
+)
+const IconFolder = () => (
+  <svg className="navIcon" viewBox="0 0 24 24">
+    <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" />
+  </svg>
+)
+const IconSmart = () => (
+  <svg className="navIcon" viewBox="0 0 24 24">
+    <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-2.06 11L15 15.28 12.06 17l.78-3.33-2.59-2.24 3.41-.29L15 8l1.34 3.14 3.41.29-2.59 2.24.78 3.33z" />
+  </svg>
+)
+const IconTag = () => (
+  <svg className="navIcon" viewBox="0 0 24 24">
+    <path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z" />
+  </svg>
+)
+const IconSettings = () => (
+  <svg className="navIcon" viewBox="0 0 24 24">
+    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L3.16 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+  </svg>
+)
+const IconSearch = () => (
+  <svg className="searchIcon" viewBox="0 0 24 24">
+    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+  </svg>
+)
+const IconAi = () => (
+  <svg className="btnIcon" viewBox="0 0 24 24">
+    <path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z" />
+  </svg>
+)
+const IconAdd = () => (
+  <svg className="btnIcon" viewBox="0 0 24 24">
+    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+  </svg>
+)
+const IconMenu = () => (
+  <svg className="btnIcon" viewBox="0 0 24 24">
+     <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+  </svg>
+)
+const IconClose = () => (
+  <svg className="navIcon" viewBox="0 0 24 24" style={{ width: 24, height: 24 }}>
+    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+  </svg>
+)
+const IconEdit = () => (
+  <svg className="navIcon" viewBox="0 0 24 24">
+    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+  </svg>
+)
+const IconDelete = () => (
+  <svg className="navIcon" viewBox="0 0 24 24">
+    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+  </svg>
+)
+
 type LibraryStatus = { open: boolean; libraryPath: string | null }
 type MediaRow = {
   id: string
@@ -661,16 +723,11 @@ function App(): React.JSX.Element {
   if (!api) {
     return (
       <div className="app">
-        <header className="topbar">
-          <div className="title">作品资源管理</div>
-          <div className="path" />
-          <div className="actions" />
-        </header>
         <main className="center">
           <div className="card">
             <div className="cardTitle">请在 Electron 窗口中运行</div>
             <div className="cardActions">
-              <button onClick={() => location.reload()}>刷新</button>
+              <button className="btn btnPrimary" onClick={() => location.reload()}>刷新</button>
             </div>
           </div>
         </main>
@@ -682,18 +739,16 @@ function App(): React.JSX.Element {
     return (
       <div className="app">
         <header className="topbar">
-          <div className="title">作品资源管理</div>
-          <div className="path" />
-          <div className="actions" />
+          <div className="title">WeaveVision</div>
         </header>
         <main className="center">
           <div className="card">
             <div className="cardTitle">选择或创建资源库</div>
             <div className="cardActions">
-              <button disabled={busy} onClick={handleCreateLibrary}>
+              <button className="btn btnPrimary" disabled={busy} onClick={handleCreateLibrary}>
                 创建库
               </button>
-              <button disabled={busy} onClick={handleOpenLibrary}>
+              <button className="btn btnSecondary" disabled={busy} onClick={handleOpenLibrary}>
                 打开库
               </button>
             </div>
@@ -705,230 +760,205 @@ function App(): React.JSX.Element {
 
   return (
     <div className="app">
-      <header className="topbar">
-        <div className="title">作品资源管理</div>
-        <div className="path" title={libraryPath ?? ''}>
-          {libraryPath}
-        </div>
-        <div className="actions">
-          <input className="search" value={query} placeholder="搜索标题/备注" onChange={(e) => setQuery(e.target.value)} />
-          <input
-            className="search"
-            value={tagFilter}
-            placeholder="按标签过滤（精确匹配）"
-            onChange={(e) => setTagFilter(e.target.value)}
-          />
-          <button disabled={busy} onClick={() => setShowAppMenu(true)}>
-            操作
-          </button>
-        </div>
-      </header>
-      <main className="layout">
+      <div className="layout">
+        {/* Sidebar */}
         <aside className="sidebar">
-          <div className="navSection">
-            <button className={view === 'all' ? 'nav active' : 'nav'} onClick={() => setView('all')}>
-              全部
-            </button>
-            <button className={view === 'images' ? 'nav active' : 'nav'} onClick={() => setView('images')}>
-              图片
-            </button>
-            <button className={view === 'videos' ? 'nav active' : 'nav'} onClick={() => setView('videos')}>
-              视频
-            </button>
-            <button className={view === 'duplicates' ? 'nav active' : 'nav'} onClick={() => setView('duplicates')}>
-              重复
-            </button>
+          <div className="sectionTitle">LIBRARIES</div>
+          <div className={view === 'all' ? 'nav active' : 'nav'} onClick={() => setView('all')}>
+            <IconLibrary />
+            <span>My Resource Library</span>
           </div>
-          <div className="navSection">
-            <div className="sectionTitle">智能文件夹</div>
-            <button
-              className={view === 'smart' && !activeSmartId ? 'nav active' : 'nav'}
-              onClick={() => {
-                setView('smart')
-                setActiveSmartId(null)
-                setSelectedId(null)
-              }}
-            >
-              查看全部
-            </button>
-            {smartFolders.map((sf) => (
-              <div key={sf.id} className={view === 'smart' && activeSmartId === sf.id ? 'navRow active' : 'navRow'}>
-                <button className="navRowMain" onClick={() => handleSelectSmart(sf.id)}>
-                  {sf.name}
-                </button>
-                <div className="navRowActions">
-                  <button
-                    className="navIconBtn"
-                    disabled={busy}
-                    onClick={() => {
-                      startEditSmartFolder(sf)
-                    }}
-                    title="编辑"
-                  >
-                    编辑
-                  </button>
-                  <button
-                    className="navIconBtn danger"
-                    disabled={busy}
-                    onClick={() => {
-                      requestDeleteSmartFolder(sf)
-                    }}
-                    title="删除"
-                  >
-                    删除
-                  </button>
-                </div>
-              </div>
-            ))}
-            <button
-              className="nav navNew"
-              onClick={() => {
-                openSmartEditorForCreate()
-              }}
-            >
-              ＋ 新建
-            </button>
+
+          <div className="sectionTitle">SMART FOLDERS</div>
+          <div className={view === 'images' ? 'nav active' : 'nav'} onClick={() => setView('images')}>
+             <IconFolder />
+            <span>Images</span>
+          </div>
+          <div className={view === 'videos' ? 'nav active' : 'nav'} onClick={() => setView('videos')}>
+             <IconFolder />
+            <span>Videos</span>
+          </div>
+          <div className={view === 'duplicates' ? 'nav active' : 'nav'} onClick={() => setView('duplicates')}>
+             <IconFolder />
+            <span>Duplicates</span>
+          </div>
+
+          {smartFolders.map((sf) => (
+             <div key={sf.id} className={view === 'smart' && activeSmartId === sf.id ? 'nav active' : 'nav'} onClick={() => handleSelectSmart(sf.id)}>
+                <IconSmart />
+                <span style={{flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{sf.name}</span>
+                <button className="btnIcon" style={{opacity: 0.5}} onClick={(e) => { e.stopPropagation(); startEditSmartFolder(sf); }}>✎</button>
+             </div>
+          ))}
+          <div className="nav" onClick={() => openSmartEditorForCreate()}>
+            <IconAdd />
+            <span>New Smart Folder</span>
+          </div>
+
+          <div className="sectionTitle">TAGS</div>
+          <div className="nav" onClick={() => openTagLibrary()}>
+            <IconTag />
+            <span>Manage Tags</span>
+          </div>
+
+          <div style={{flex: 1}} />
+          <div className="nav" onClick={() => setShowAppMenu(true)}>
+             <IconSettings />
+             <span>Settings</span>
           </div>
         </aside>
 
-        <section className="content">
-          <div className="grid">
-            {(view === 'duplicates' ? duplicates.map((d) => d.media) : items).map((m) => {
-              const count = view === 'duplicates' ? duplicates.find((d) => d.media.id === m.id)?.sourceCount ?? 0 : 0
-              const isSelected = selection.includes(m.id) || selectedId === m.id
-              return (
-                <div
-                  key={m.id}
-                  className={isSelected ? 'item selected' : 'item'}
-                  onClick={(e) => toggleSelect(m.id, e.metaKey || e.ctrlKey)}
-                >
-                  <label
-                    className="itemCheck"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      onChange={() => toggleSelect(m.id, true)}
-                      onClick={(e) => e.stopPropagation()}
+        {/* Main Content */}
+        <div className="mainContentWrapper">
+            <header className="topbar">
+                <div className="searchContainer">
+                    <IconSearch />
+                    <input 
+                        className="searchInput" 
+                        value={query} 
+                        placeholder="Search resources..." 
+                        onChange={(e) => setQuery(e.target.value)} 
                     />
-                  </label>
-                  {m.thumbUrl ? <img className="thumb" src={m.thumbUrl} /> : <div className="thumb placeholder" />}
-                  <div className="caption" title={m.title ?? m.originalFilename}>
-                    {view === 'duplicates' ? `${m.title ?? m.originalFilename}（${count}）` : m.title ?? m.originalFilename}
-                  </div>
                 </div>
-              )
-            })}
-          </div>
-        </section>
+                <div className="headerActions">
+                    <button className="btn btnPrimary" disabled={busy} onClick={requestAiAutoTag}>
+                        <IconAi />
+                        <span>AI Tagging</span>
+                    </button>
+                    <button className="btn btnSecondary" disabled={busy} onClick={handleImport}>
+                        <IconAdd />
+                        <span>Import</span>
+                    </button>
+                    <button className="btn btnSecondary" onClick={() => setShowAppMenu(true)}>
+                        <IconMenu />
+                    </button>
+                </div>
+            </header>
 
+            <section className="content">
+                <div className="grid">
+                    {(view === 'duplicates' ? duplicates.map((d) => d.media) : items).map((m) => {
+                    const count = view === 'duplicates' ? duplicates.find((d) => d.media.id === m.id)?.sourceCount ?? 0 : 0
+                    const isSelected = selection.includes(m.id) || selectedId === m.id
+                    return (
+                        <div
+                            key={m.id}
+                            className={isSelected ? 'item selected' : 'item'}
+                            onClick={(e) => toggleSelect(m.id, e.metaKey || e.ctrlKey)}
+                        >
+                            {m.thumbUrl ? <img className="thumb" src={m.thumbUrl} /> : <div className="thumb placeholder" />}
+                            <div className="caption">
+                                <div className="itemTitle" title={m.title ?? m.originalFilename}>
+                                    {view === 'duplicates' ? `${m.title ?? m.originalFilename}（${count}）` : m.title ?? m.originalFilename}
+                                </div>
+                                <div className="itemTags">
+                                    {/* Display first 2 tags if available, though items doesn't usually have full tags loaded in list, check types. 
+                                        MediaRow doesn't have tags. MediaDetails has. The list api usually returns minimal info.
+                                        Assuming MediaRow might not have tags populated for list view for performance, but if we wanted tags we'd need API update.
+                                        For now, skipping tags in grid or using what's available if extended.
+                                    */}
+                                </div>
+                            </div>
+                        </div>
+                    )
+                    })}
+                </div>
+            </section>
+        </div>
+
+        {/* Detail Panel */}
         <aside className="inspector">
-          {details ? (
-            <div className="inspectorInner">
-              <div className="selectionInfo">{selection.length ? `已选择 ${selection.length} 项` : '已选择 1 项'}</div>
-              <div className="preview">
-                {details.mime?.startsWith('video/') ? (
-                  <video className="previewMedia" src={details.originalUrl} controls />
-                ) : (
-                  <img className="previewMedia" src={details.originalUrl} />
-                )}
-              </div>
-              <div className="field">
-                <div className="label">标题</div>
-                <input
-                  value={details.title ?? ''}
-                  onChange={(e) => setDetails({ ...details, title: e.target.value })}
-                  onBlur={() => void handleSaveMeta({ title: details.title })}
-                />
-              </div>
-              <div className="field">
-                <div className="label">评分</div>
-                <input
-                  value={String(details.rating)}
-                  inputMode="numeric"
-                  onChange={(e) => setDetails({ ...details, rating: Number(e.target.value || 0) })}
-                  onBlur={() => void handleSaveMeta({ rating: details.rating })}
-                />
-              </div>
-              <div className="field">
-                <div className="label">备注</div>
-                <textarea
-                  value={details.note ?? ''}
-                  onChange={(e) => setDetails({ ...details, note: e.target.value })}
-                  onBlur={() => void handleSaveMeta({ note: details.note })}
-                />
-              </div>
-              <div className="field">
-                <div className="label">标签</div>
-                <div className="tagList">
-                  {details.tags.map((t) => (
-                    <span key={t.id} className="tag">
-                      {t.name}
-                      <button className="tagRemove" onClick={() => void handleRemoveTag(t.id)}>
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                <div className="tagAdd">
-                  <div className="tagInputWrap">
-                    <input
-                      value={tagInput}
-                      placeholder="输入标签，逗号分隔；回车添加"
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          void handleAddTags()
-                        }
-                      }}
-                      onFocus={() => {
-                        if (tagSuggestions.length) setTagSuggestionsOpen(true)
-                      }}
-                      onBlur={() => {
-                        setTimeout(() => setTagSuggestionsOpen(false), 150)
-                      }}
-                    />
-                    {tagSuggestionsOpen && tagSuggestions.length ? (
-                      <div className="tagSuggest">
-                        {tagSuggestions.map((t) => (
-                          <div
-                            key={t.id}
-                            className="tagSuggestItem"
-                            onMouseDown={(e) => {
-                              e.preventDefault()
-                              setTagInput((prev) => replaceLastTagToken(prev, t.name))
-                              setTagSuggestionsOpen(false)
-                            }}
-                          >
-                            {t.name}
-                          </div>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                  <button onClick={() => void handleAddTags()}>添加</button>
-                </div>
-              </div>
-              <div className="field">
-                <div className="label">来源</div>
-                <div className="sources">
-                  {details.sources.slice(0, 20).map((s) => (
-                    <div key={s} className="source">
-                      {s}
+            {details ? (
+                <>
+                    <div className="preview">
+                        {details.mime?.startsWith('video/') ? (
+                        <video className="previewMedia" src={details.originalUrl} controls />
+                        ) : (
+                        <img className="previewMedia" src={details.originalUrl} />
+                        )}
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="inspectorEmpty">选择一个资源查看详情</div>
-          )}
+                    
+                    <div className="infoSection">
+                        <div className="detailTitle">{details.title ?? details.originalFilename}</div>
+                        <div className="propsGrid">
+                             <div className="propRow">
+                                <span className="propLabel">Size</span>
+                                <span className="propValue">-</span>
+                             </div>
+                             <div className="propRow">
+                                <span className="propLabel">Rating</span>
+                                <span className="propValue">{details.rating}</span>
+                             </div>
+                        </div>
+                    </div>
+
+                    <div className="divider" />
+
+                    <div className="tagsSection">
+                        <div className="tagsHeader">
+                            <span>Tags</span>
+                        </div>
+                        <div className="tagList">
+                            {details.tags.map((t) => (
+                                <span key={t.id} className="tag">
+                                    {t.name}
+                                    <span style={{cursor:'pointer', marginLeft:4}} onClick={() => void handleRemoveTag(t.id)}>×</span>
+                                </span>
+                            ))}
+                        </div>
+                        <div className="tagInputWrap">
+                            <input
+                                className="addTagInput"
+                                style={{width: '100%'}}
+                                value={tagInput}
+                                placeholder="Add tag..."
+                                onChange={(e) => setTagInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault()
+                                        void handleAddTags()
+                                    }
+                                }}
+                                onFocus={() => {
+                                    if (tagSuggestions.length) setTagSuggestionsOpen(true)
+                                }}
+                                onBlur={() => {
+                                    setTimeout(() => setTagSuggestionsOpen(false), 150)
+                                }}
+                            />
+                             {tagSuggestionsOpen && tagSuggestions.length ? (
+                                <div className="tagSuggest">
+                                    {tagSuggestions.map((t) => (
+                                    <div
+                                        key={t.id}
+                                        className="tagSuggestItem"
+                                        onMouseDown={(e) => {
+                                        e.preventDefault()
+                                        setTagInput((prev) => replaceLastTagToken(prev, t.name))
+                                        setTagSuggestionsOpen(false)
+                                        }}
+                                    >
+                                        {t.name}
+                                    </div>
+                                    ))}
+                                </div>
+                                ) : null}
+                        </div>
+                    </div>
+
+                    <button className="aiActionBtn" disabled={busy || aiPhase !== null} onClick={requestAiAutoTag}>
+                        <IconAi />
+                        <span>AI Analyze & Tag</span>
+                    </button>
+                </>
+            ) : (
+                <div style={{opacity: 0.5, textAlign: 'center', marginTop: 40}}>Select an item to view details</div>
+            )}
         </aside>
-      </main>
+
+      </div>
+
+      {/* Modals remain mostly same but with updated styles if needed */}
       {showSmartDeleteConfirm && smartDeleteTarget ? (
         <div
           className="modalOverlay"
@@ -942,7 +972,7 @@ function App(): React.JSX.Element {
             <div className="modalBody">
               <div className="errorText">确认删除“{smartDeleteTarget.name}”？此操作不可撤销。</div>
               <div className="modalActions">
-                <button
+                <button className="btn btnSecondary"
                   disabled={busy}
                   onClick={() => {
                     setShowSmartDeleteConfirm(false)
@@ -951,7 +981,7 @@ function App(): React.JSX.Element {
                 >
                   取消
                 </button>
-                <button
+                <button className="btn btnPrimary"
                   disabled={busy}
                   onClick={() => {
                     const id = smartDeleteTarget.id
@@ -967,6 +997,7 @@ function App(): React.JSX.Element {
           </div>
         </div>
       ) : null}
+      
       {showSmartEditor ? (
         <div
           className="modalOverlay"
@@ -978,14 +1009,15 @@ function App(): React.JSX.Element {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modalTitle">{smartEditId ? '编辑智能文件夹' : '新建智能文件夹'}</div>
             <div className="modalBody">
-              <input value={smartName} placeholder="名称" onChange={(e) => setSmartName(e.target.value)} />
-              <select value={smartType} onChange={(e) => setSmartType(e.target.value as 'image' | 'video' | '')}>
+              <input className="searchInput" style={{background: 'var(--color-panel)', border: '1px solid var(--color-border)', padding: 8, borderRadius: 4}} value={smartName} placeholder="名称" onChange={(e) => setSmartName(e.target.value)} />
+              <select className="searchInput" style={{background: 'var(--color-panel)', border: '1px solid var(--color-border)', padding: 8, borderRadius: 4}} value={smartType} onChange={(e) => setSmartType(e.target.value as 'image' | 'video' | '')}>
                 <option value="">类型不限</option>
                 <option value="image">图片</option>
                 <option value="video">视频</option>
               </select>
               <div className="tagInputWrap">
                 <input
+                  className="searchInput" style={{background: 'var(--color-panel)', border: '1px solid var(--color-border)', padding: 8, borderRadius: 4}}
                   value={smartTag}
                   placeholder="标签（逗号分隔，精确匹配）"
                   onChange={(e) => setSmartTag(e.target.value)}
@@ -1015,14 +1047,15 @@ function App(): React.JSX.Element {
                 ) : null}
               </div>
               <input
+                className="searchInput" style={{background: 'var(--color-panel)', border: '1px solid var(--color-border)', padding: 8, borderRadius: 4}}
                 value={smartRatingGte}
                 placeholder="评分≥（0-5）"
                 inputMode="numeric"
                 onChange={(e) => setSmartRatingGte(e.target.value)}
               />
-              <input value={smartTitleContains} placeholder="标题包含" onChange={(e) => setSmartTitleContains(e.target.value)} />
+              <input className="searchInput" style={{background: 'var(--color-panel)', border: '1px solid var(--color-border)', padding: 8, borderRadius: 4}} value={smartTitleContains} placeholder="标题包含" onChange={(e) => setSmartTitleContains(e.target.value)} />
               <div className="modalActions">
-                <button
+                <button className="btn btnSecondary"
                   disabled={busy}
                   onClick={() => {
                     setShowSmartEditor(false)
@@ -1031,7 +1064,7 @@ function App(): React.JSX.Element {
                 >
                   取消
                 </button>
-                <button disabled={busy} onClick={handleSaveSmartFolder}>
+                <button className="btn btnPrimary" disabled={busy} onClick={handleSaveSmartFolder}>
                   {smartEditId ? '更新' : '保存'}
                 </button>
               </div>
@@ -1039,26 +1072,31 @@ function App(): React.JSX.Element {
           </div>
         </div>
       ) : null}
+
+      {/* AI Settings Modal */}
       {showAiSettings ? (
         <div className="modalOverlay" onClick={() => setShowAiSettings(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modalTitle">AI 设置（OpenAI-compatible）</div>
             <div className="modalBody">
               <input
+                className="searchInput" style={{background: 'var(--color-panel)', border: '1px solid var(--color-border)', padding: 8, borderRadius: 4}}
                 value={aiBaseUrl}
-                placeholder="Base URL，例如 http://localhost:8000 或 https://dashscope.aliyuncs.com/compatible-mode"
+                placeholder="Base URL"
                 onChange={(e) => setAiBaseUrl(e.target.value)}
               />
-              <input value={aiModel} placeholder="Model，例如 Qwen2-VL-7B-Instruct" onChange={(e) => setAiModel(e.target.value)} />
-              <input value={aiApiKey} placeholder="API Key" onChange={(e) => setAiApiKey(e.target.value)} />
+              <input className="searchInput" style={{background: 'var(--color-panel)', border: '1px solid var(--color-border)', padding: 8, borderRadius: 4}} value={aiModel} placeholder="Model" onChange={(e) => setAiModel(e.target.value)} />
+              <input className="searchInput" style={{background: 'var(--color-panel)', border: '1px solid var(--color-border)', padding: 8, borderRadius: 4}} value={aiApiKey} placeholder="API Key" onChange={(e) => setAiApiKey(e.target.value)} />
               <div className="modalActions">
-                <button onClick={() => setShowAiSettings(false)}>取消</button>
-                <button onClick={() => void handleSaveAiSettings()}>保存</button>
+                <button className="btn btnSecondary" onClick={() => setShowAiSettings(false)}>取消</button>
+                <button className="btn btnPrimary" onClick={() => void handleSaveAiSettings()}>保存</button>
               </div>
             </div>
           </div>
         </div>
       ) : null}
+
+      {/* AI Preview Modal */}
       {showAiPreview ? (
         <div
           className="modalOverlay"
@@ -1093,7 +1131,7 @@ function App(): React.JSX.Element {
                 ))}
               </div>
               <div className="modalActions">
-                <button
+                <button className="btn btnSecondary"
                   disabled={aiPhase !== null}
                   onClick={() => {
                     setShowAiPreview(false)
@@ -1102,7 +1140,7 @@ function App(): React.JSX.Element {
                 >
                   取消
                 </button>
-                <button disabled={aiPhase !== null || !aiPreviewItems.length} onClick={() => void applyAiPreview()}>
+                <button className="btn btnPrimary" disabled={aiPhase !== null || !aiPreviewItems.length} onClick={() => void applyAiPreview()}>
                   应用修改
                 </button>
               </div>
@@ -1110,6 +1148,8 @@ function App(): React.JSX.Element {
           </div>
         </div>
       ) : null}
+
+      {/* AI Loading Modal */}
       {aiPhase ? (
         <div className="modalOverlay">
           <div className="modal">
@@ -1126,11 +1166,8 @@ function App(): React.JSX.Element {
           </div>
         </div>
       ) : null}
-      {dragActive ? (
-        <div className="dropOverlay">
-          <div className="dropCard">松开鼠标导入文件</div>
-        </div>
-      ) : null}
+      
+      {/* App Menu */}
       {showAppMenu ? (
         <div className="modalOverlay" onClick={() => setShowAppMenu(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -1138,7 +1175,7 @@ function App(): React.JSX.Element {
             <div className="modalBody">
               <div className="sectionTitle">文件</div>
               <div className="modalActions" style={{ justifyContent: 'flex-start' }}>
-                <button
+                <button className="btn btnSecondary"
                   disabled={busy}
                   onClick={() => {
                     setShowAppMenu(false)
@@ -1147,7 +1184,7 @@ function App(): React.JSX.Element {
                 >
                   创建库…
                 </button>
-                <button
+                <button className="btn btnSecondary"
                   disabled={busy}
                   onClick={() => {
                     setShowAppMenu(false)
@@ -1156,7 +1193,7 @@ function App(): React.JSX.Element {
                 >
                   打开/切换库…
                 </button>
-                <button
+                <button className="btn btnSecondary"
                   disabled={busy}
                   onClick={() => {
                     setShowAppMenu(false)
@@ -1169,7 +1206,7 @@ function App(): React.JSX.Element {
 
               <div className="sectionTitle">AI</div>
               <div className="modalActions" style={{ justifyContent: 'flex-start' }}>
-                <button
+                <button className="btn btnSecondary"
                   disabled={busy || aiPhase !== null || !selectedId}
                   onClick={() => {
                     setShowAppMenu(false)
@@ -1178,7 +1215,7 @@ function App(): React.JSX.Element {
                 >
                   AI 命名/打标签
                 </button>
-                <button
+                <button className="btn btnSecondary"
                   disabled={busy || aiPhase !== null}
                   onClick={() => {
                     setShowAppMenu(false)
@@ -1191,7 +1228,7 @@ function App(): React.JSX.Element {
 
               <div className="sectionTitle">标签</div>
               <div className="modalActions" style={{ justifyContent: 'flex-start' }}>
-                <button
+                <button className="btn btnSecondary"
                   disabled={busy}
                   onClick={() => {
                     setShowAppMenu(false)
@@ -1203,12 +1240,14 @@ function App(): React.JSX.Element {
               </div>
 
               <div className="modalActions">
-                <button onClick={() => setShowAppMenu(false)}>关闭</button>
+                <button className="btn btnSecondary" onClick={() => setShowAppMenu(false)}>关闭</button>
               </div>
             </div>
           </div>
         </div>
       ) : null}
+
+      {/* Tag Library */}
       {showTagLibrary ? (
         <div
           className="modalOverlay"
@@ -1218,77 +1257,102 @@ function App(): React.JSX.Element {
             setTagLibraryItems([])
           }}
         >
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modalTitle">标签库</div>
-            <div className="modalBody">
+          <div className="tagManagerModal" onClick={(e) => e.stopPropagation()}>
+            <div className="tagManagerHeader">
+              <div className="tagManagerTitle">Tag Library</div>
+              <div 
+                className="tagManagerClose"
+                onClick={() => {
+                  setShowTagLibrary(false)
+                  setTagLibraryQuery('')
+                  setTagLibraryItems([])
+                }}
+              >
+                <IconClose />
+              </div>
+            </div>
+            
+            <div className="tagManagerSearch">
+              <IconSearch />
               <input
+                className="tagManagerSearchInput"
                 value={tagLibraryQuery}
-                placeholder="搜索标签"
+                placeholder="Search tags..."
                 onChange={(e) => {
                   const v = e.target.value
                   setTagLibraryQuery(v)
                   void loadTagLibrary(v)
                 }}
               />
-              <div className="tagLibraryList">
-                {tagLibraryItems.map((t) => (
-                  <div key={t.id} className="tagLibraryRow">
-                    <div className="tagLibraryName">
-                      {tagEditingId === t.id ? (
-                        <input value={tagEditingName} onChange={(e) => setTagEditingName(e.target.value)} />
-                      ) : (
-                        t.name
-                      )}
-                    </div>
-                    <div className="tagLibraryActions">
-                      {tagEditingId === t.id ? (
-                        <>
-                          <button disabled={busy} onClick={() => setTagEditingId(null)}>
-                            取消
-                          </button>
-                          <button disabled={busy} onClick={() => void handleUpdateTag(t.id, t.name, tagEditingName)}>
-                            保存
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            disabled={busy}
-                            onClick={() => {
-                              setTagFilter(t.name)
-                              setShowTagLibrary(false)
-                            }}
-                          >
-                            过滤
-                          </button>
-                          <button disabled={busy || !selectedId} onClick={() => void addTagsToSelection([t.name])}>
-                            添加到选中
-                          </button>
-                          <button
-                            disabled={busy}
-                            onClick={() => {
-                              setTagEditingId(t.id)
-                              setTagEditingName(t.name)
-                            }}
-                          >
-                            编辑
-                          </button>
-                          <button disabled={busy} onClick={() => void handleDeleteTagFromLibrary(t)}>
-                            删除
-                          </button>
-                        </>
-                      )}
-                    </div>
+            </div>
+
+            <div className="tagManagerList">
+              {tagLibraryItems.map((t) => (
+                <div key={t.id} className="tagManagerRow">
+                  <div className="tagManagerRowLeft">
+                    {tagEditingId === t.id ? (
+                      <input 
+                        className="tagManagerEditInput"
+                        value={tagEditingName} 
+                        onChange={(e) => setTagEditingName(e.target.value)} 
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') void handleUpdateTag(t.id, t.name, tagEditingName)
+                          if (e.key === 'Escape') setTagEditingId(null)
+                        }}
+                      />
+                    ) : (
+                      <>
+                        <div className="tagManagerTagName">{t.name}</div>
+                        {/* <div className="tagManagerTagCount">12 items</div> */} 
+                      </>
+                    )}
                   </div>
-                ))}
-              </div>
-              <div className="modalActions">
-                <button onClick={() => setShowTagLibrary(false)}>关闭</button>
-              </div>
+                  
+                  <div className="tagManagerRowRight">
+                    {tagEditingId === t.id ? (
+                      <>
+                        <button className="btnIcon" onClick={() => setTagEditingId(null)} title="Cancel"><IconClose /></button>
+                        <button className="btnIcon" onClick={() => void handleUpdateTag(t.id, t.name, tagEditingName)} title="Save">✓</button>
+                      </>
+                    ) : (
+                      <>
+                        <button 
+                          className="tagManagerActionBtn" 
+                          onClick={() => {
+                            setTagEditingId(t.id)
+                            setTagEditingName(t.name)
+                          }}
+                        >
+                          <IconEdit />
+                        </button>
+                        <button 
+                          className="tagManagerActionBtn" 
+                          onClick={() => void handleDeleteTagFromLibrary(t)}
+                        >
+                          <IconDelete />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="tagManagerDivider" />
+            
+            <div className="tagManagerFooter">
+              <button 
+                className="tagManagerCloseBtn" 
+                onClick={() => setShowTagLibrary(false)}
+              >
+                Close
+              </button>
             </div>
           </div>
         </div>
       ) : null}
+      
       {error ? (
         <div className="modalOverlay" onClick={() => setError(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -1296,7 +1360,7 @@ function App(): React.JSX.Element {
             <div className="modalBody">
               <div className="errorText">{error}</div>
               <div className="modalActions">
-                <button onClick={() => setError(null)}>关闭</button>
+                <button className="btn btnSecondary" onClick={() => setError(null)}>关闭</button>
               </div>
             </div>
           </div>
