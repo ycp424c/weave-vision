@@ -44,7 +44,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, libraryManager: L
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ['openFile', 'multiSelections'],
       filters: [
-        { name: 'Media', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'mp4', 'mov', 'm4v', 'webm'] },
+        { name: 'Media', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'mp4', 'mov', 'm4v', 'webm', 'mp3', 'wav', 'ogg', 'flac', 'm4a', 'aac'] },
         { name: 'All', extensions: ['*'] }
       ]
     })
@@ -64,7 +64,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, libraryManager: L
     return libraryManager.getMediaDetails(id)
   })
 
-  ipcMain.handle('media:setMeta', async (_event, id: string, patch: { title?: string | null; note?: string | null; rating?: number }) => {
+  ipcMain.handle('media:setMeta', async (_event, id: string, patch: { title?: string | null; note?: string | null; lyrics?: string | null; rating?: number }) => {
     libraryManager.setMediaMeta(id, patch)
     return libraryManager.getMediaDetails(id)
   })

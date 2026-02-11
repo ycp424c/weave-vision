@@ -24,6 +24,9 @@ export type MediaTag = {
 
 export type MediaDetails = MediaRow & {
   note: string | null
+  lyrics: string | null
+  duration: number | null
+  size: number
   rating: number
   tags: MediaTag[]
   sources: string[]
@@ -58,12 +61,12 @@ export type ResourceManagerApi = {
     importFiles: (filePaths: string[]) => Promise<ImportResult>
     list: (limit?: number, offset?: number) => Promise<MediaRow[]>
     search: (
-      params: { query?: string; tag?: string; mimePrefix?: 'image' | 'video' | null },
+      params: { query?: string; tag?: string; mimePrefix?: 'image' | 'video' | 'audio' | null },
       limit?: number,
       offset?: number
     ) => Promise<MediaRow[]>
     getDetails: (id: string) => Promise<MediaDetails | null>
-    setMeta: (id: string, patch: { title?: string | null; note?: string | null; rating?: number }) => Promise<MediaDetails | null>
+    setMeta: (id: string, patch: { title?: string | null; note?: string | null; lyrics?: string | null; rating?: number }) => Promise<MediaDetails | null>
     addTags: (mediaId: string, tagNames: string[], source?: 'manual' | 'ai', confidence?: number | null) => Promise<MediaDetails | null>
     removeTag: (mediaId: string, tagId: string) => Promise<MediaDetails | null>
   }

@@ -166,6 +166,36 @@
               ]
             },
             {
+              "id": "sfItemAudio",
+              "name": "sfItem4",
+              "type": "frame",
+              "width": "fill_container",
+              "gap": 8,
+              "padding": 8,
+              "children": [
+                {
+                  "id": "sfIcon4",
+                  "name": "sfIcon4",
+                  "type": "icon_font",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "iconFontName": "audio_file",
+                  "fill": "#cccccc"
+                },
+                {
+                  "id": "sfText4",
+                  "name": "sfText4",
+                  "type": "text",
+                  "content": "All Audio",
+                  "fill": "#cccccc",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
               "id": "a0mnV",
               "name": "tagsTitle",
               "type": "text",
@@ -650,6 +680,109 @@
                       ]
                     }
                   ]
+                },
+                {
+                  "id": "row2",
+                  "name": "row2",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "gap": 16,
+                  "children": [
+                    {
+                      "id": "musicCard",
+                      "name": "musicCard",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "fill": "#252526",
+                      "cornerRadius": 8,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "id": "musicThumb",
+                          "name": "musicThumb",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "height": 160,
+                          "fill": "#333333",
+                          "alignItems": "center",
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "id": "musicIcon",
+                              "name": "musicIcon",
+                              "type": "icon_font",
+                              "iconFontFamily": "Material Symbols Rounded",
+                              "iconFontName": "music_note",
+                              "fontSize": 48,
+                              "fill": "#555555"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "musicMeta",
+                          "name": "musicMeta",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 12,
+                          "children": [
+                            {
+                              "id": "musicTitle",
+                              "name": "musicTitle",
+                              "type": "text",
+                              "content": "Symphony No.9.mp3",
+                              "fill": "#ffffff",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "bold"
+                            },
+                            {
+                              "id": "musicTagsRow",
+                              "name": "musicTagsRow",
+                              "type": "frame",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "id": "musicTag1",
+                                  "name": "musicTag1",
+                                  "type": "frame",
+                                  "fill": "#333333",
+                                  "cornerRadius": 2,
+                                  "padding": [
+                                    2,
+                                    6
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": "musicTagText1",
+                                      "name": "musicTagText1",
+                                      "type": "text",
+                                      "content": "Classical",
+                                      "fill": "#aaaaaa",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 10,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "spacerCard1",
+                      "type": "frame",
+                      "width": "fill_container"
+                    },
+                    {
+                      "id": "spacerCard2",
+                      "type": "frame",
+                      "width": "fill_container"
+                    }
+                  ]
                 }
               ]
             }
@@ -924,6 +1057,1038 @@
                   "name": "aiActionText",
                   "type": "text",
                   "content": "AI Analyze & Tag",
+                  "fill": "#ffffff",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "bold"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "musicWindow",
+      "name": "WeaveVision Main Window - Music Mode",
+      "type": "frame",
+      "width": 1200,
+      "height": 800,
+      "x": 0,
+      "y": 850,
+      "fill": "#1e1e1e",
+      "layout": "horizontal",
+      "children": [
+        {
+          "id": "AxuCw",
+          "name": "Sidebar",
+          "type": "frame",
+          "width": 240,
+          "height": "fill_container",
+          "fill": "#252526",
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 16,
+          "children": [
+            {
+              "id": "mUGCr",
+              "name": "libraryTitle",
+              "type": "text",
+              "content": "LIBRARIES",
+              "fill": "#888888",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "bold"
+            },
+            {
+              "id": "NyGWU",
+              "name": "libItem1",
+              "type": "frame",
+              "width": "fill_container",
+              "fill": "#37373d",
+              "cornerRadius": 4,
+              "gap": 8,
+              "padding": 8,
+              "children": [
+                {
+                  "id": "Li5RF",
+                  "name": "libIcon",
+                  "type": "icon_font",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "iconFontName": "library_books",
+                  "fill": "#ffffff"
+                },
+                {
+                  "id": "gijde",
+                  "name": "libText",
+                  "type": "text",
+                  "content": "My Resource Library",
+                  "fill": "#ffffff",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "id": "Q1Vxp",
+              "name": "smartFolderTitle",
+              "type": "text",
+              "content": "SMART FOLDERS",
+              "fill": "#888888",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "bold"
+            },
+            {
+              "id": "0pMZF",
+              "name": "sfItem1",
+              "type": "frame",
+              "width": "fill_container",
+              "gap": 8,
+              "padding": 8,
+              "children": [
+                {
+                  "id": "B2PjS",
+                  "name": "sfIcon1",
+                  "type": "icon_font",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "iconFontName": "folder_special",
+                  "fill": "#cccccc"
+                },
+                {
+                  "id": "bOAg7",
+                  "name": "sfText1",
+                  "type": "text",
+                  "content": "All Images",
+                  "fill": "#cccccc",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "id": "u8YY8",
+              "name": "sfItem2",
+              "type": "frame",
+              "width": "fill_container",
+              "gap": 8,
+              "padding": 8,
+              "children": [
+                {
+                  "id": "10jFQ",
+                  "name": "sfIcon2",
+                  "type": "icon_font",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "iconFontName": "folder_open",
+                  "fill": "#cccccc"
+                },
+                {
+                  "id": "vFwnZ",
+                  "name": "sfText2",
+                  "type": "text",
+                  "content": "Uncategorized",
+                  "fill": "#cccccc",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "id": "60pw2",
+              "name": "sfItem3",
+              "type": "frame",
+              "width": "fill_container",
+              "gap": 8,
+              "padding": 8,
+              "children": [
+                {
+                  "id": "RLT1u",
+                  "name": "sfIcon3",
+                  "type": "icon_font",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "iconFontName": "content_copy",
+                  "fill": "#cccccc"
+                },
+                {
+                  "id": "4dEnd",
+                  "name": "sfText3",
+                  "type": "text",
+                  "content": "Duplicates",
+                  "fill": "#cccccc",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "id": "4Eeay",
+              "name": "sfItem4",
+              "type": "frame",
+              "width": "fill_container",
+              "gap": 8,
+              "padding": 8,
+              "children": [
+                {
+                  "id": "s1mZ9",
+                  "name": "sfIcon4",
+                  "type": "icon_font",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "iconFontName": "audio_file",
+                  "fill": "#cccccc"
+                },
+                {
+                  "id": "6L9H5",
+                  "name": "sfText4",
+                  "type": "text",
+                  "content": "All Audio",
+                  "fill": "#cccccc",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "id": "gUx11",
+              "name": "tagsTitle",
+              "type": "text",
+              "content": "TAGS",
+              "fill": "#888888",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "bold"
+            },
+            {
+              "id": "zL0Md",
+              "name": "tagItem1",
+              "type": "frame",
+              "width": "fill_container",
+              "gap": 8,
+              "padding": 8,
+              "children": [
+                {
+                  "id": "FrMht",
+                  "name": "tagIcon1",
+                  "type": "icon_font",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "iconFontName": "label",
+                  "fill": "#cccccc"
+                },
+                {
+                  "id": "tdEvz",
+                  "name": "tagText1",
+                  "type": "text",
+                  "content": "Nature",
+                  "fill": "#cccccc",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "id": "JO6LH",
+              "name": "spacer",
+              "type": "frame",
+              "width": "fill_container",
+              "height": "fill_container"
+            },
+            {
+              "id": "yuVyr",
+              "name": "settingsItem",
+              "type": "frame",
+              "width": "fill_container",
+              "gap": 8,
+              "padding": 8,
+              "children": [
+                {
+                  "id": "5KcPA",
+                  "name": "settingsIcon",
+                  "type": "icon_font",
+                  "width": 16,
+                  "height": 16,
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "iconFontName": "settings",
+                  "fill": "#cccccc"
+                },
+                {
+                  "id": "wY4PB",
+                  "name": "settingsText",
+                  "type": "text",
+                  "content": "Settings",
+                  "fill": "#cccccc",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "SFTwn",
+          "name": "Main Content",
+          "type": "frame",
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "#1e1e1e",
+          "layout": "vertical",
+          "children": [
+            {
+              "id": "U47rD",
+              "name": "header",
+              "type": "frame",
+              "width": "fill_container",
+              "height": 60,
+              "fill": "#1e1e1e",
+              "gap": 16,
+              "padding": 16,
+              "stroke": {
+                "align": "inside",
+                "fill": "#333333",
+                "thickness": {
+                  "bottom": 1
+                }
+              },
+              "children": [
+                {
+                  "id": "oyepi",
+                  "name": "searchContainer",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": 36,
+                  "fill": "#252526",
+                  "cornerRadius": 4,
+                  "gap": 8,
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "stroke": {
+                    "align": "inside",
+                    "fill": "#333333",
+                    "thickness": 1
+                  },
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "pL7GR",
+                      "name": "searchIcon",
+                      "type": "icon_font",
+                      "width": 18,
+                      "height": 18,
+                      "iconFontFamily": "Material Symbols Rounded",
+                      "iconFontName": "search",
+                      "fill": "#888888"
+                    },
+                    {
+                      "id": "x6FOM",
+                      "name": "searchText",
+                      "type": "text",
+                      "content": "Search resources...",
+                      "fill": "#888888",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "id": "IPsJA",
+                  "name": "aiButton",
+                  "type": "frame",
+                  "height": 32,
+                  "fill": "#4cc71e",
+                  "cornerRadius": 4,
+                  "gap": 6,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "Khbnz",
+                      "name": "aiIcon",
+                      "type": "icon_font",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontFamily": "Material Symbols Rounded",
+                      "iconFontName": "auto_awesome",
+                      "fill": "#ffffff"
+                    },
+                    {
+                      "id": "awkaw",
+                      "name": "aiText",
+                      "type": "text",
+                      "content": "AI Tagging",
+                      "fill": "#ffffff",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "bold"
+                    }
+                  ]
+                },
+                {
+                  "id": "a9Th6",
+                  "name": "importButton",
+                  "type": "frame",
+                  "height": 32,
+                  "fill": "#333333",
+                  "cornerRadius": 4,
+                  "gap": 6,
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "PaNwa",
+                      "name": "importIcon",
+                      "type": "icon_font",
+                      "width": 16,
+                      "height": 16,
+                      "iconFontFamily": "Material Symbols Rounded",
+                      "iconFontName": "add",
+                      "fill": "#cccccc"
+                    },
+                    {
+                      "id": "yay2s",
+                      "name": "importText",
+                      "type": "text",
+                      "content": "Import",
+                      "fill": "#cccccc",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "gfP9A",
+              "name": "gridContainer",
+              "type": "frame",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 16,
+              "padding": 16,
+              "children": [
+                {
+                  "id": "uZ74b",
+                  "name": "row1",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "gap": 16,
+                  "children": [
+                    {
+                      "id": "1ovTu",
+                      "name": "card1",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "fill": "#252526",
+                      "cornerRadius": 8,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "id": "0l25Z",
+                          "name": "img1",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "height": 160,
+                          "fill": {
+                            "enabled": true,
+                            "mode": "fill",
+                            "type": "image",
+                            "url": "https://images.unsplash.com/photo-1636893580433-5ac59809bb13?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3Njk2ODI1OTR8&ixlib=rb-4.1.0&q=80&w=1080"
+                          },
+                          "metadata": {
+                            "author": "Carlos I",
+                            "link": "https://unsplash.com/@procrastinator",
+                            "type": "unsplash",
+                            "username": "procrastinator"
+                          }
+                        },
+                        {
+                          "id": "aU8fM",
+                          "name": "meta1",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 12,
+                          "children": [
+                            {
+                              "id": "x3U8h",
+                              "name": "title1",
+                              "type": "text",
+                              "content": "Mountain View.jpg",
+                              "fill": "#ffffff",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "bold"
+                            },
+                            {
+                              "id": "6iIWw",
+                              "name": "tagsRow1",
+                              "type": "frame",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "id": "H1hu2",
+                                  "name": "tag1",
+                                  "type": "frame",
+                                  "fill": "#333333",
+                                  "cornerRadius": 2,
+                                  "padding": [
+                                    2,
+                                    6
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": "2XBNT",
+                                      "name": "tagText1",
+                                      "type": "text",
+                                      "content": "Nature",
+                                      "fill": "#aaaaaa",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 10,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "soz9W",
+                      "name": "card2",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "fill": "#252526",
+                      "cornerRadius": 8,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "id": "vePB4",
+                          "name": "img2",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "height": 160,
+                          "fill": {
+                            "enabled": true,
+                            "mode": "fill",
+                            "type": "image",
+                            "url": "https://images.unsplash.com/photo-1615564291478-68e3acb11b5d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3Njk2ODI2MDR8&ixlib=rb-4.1.0&q=80&w=1080"
+                          },
+                          "metadata": {
+                            "author": "Gian Porsius",
+                            "link": "https://unsplash.com/@synphonetic",
+                            "type": "unsplash",
+                            "username": "synphonetic"
+                          }
+                        },
+                        {
+                          "id": "LLhyj",
+                          "name": "meta2",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 12,
+                          "children": [
+                            {
+                              "id": "BfMzx",
+                              "name": "title2",
+                              "type": "text",
+                              "content": "City Lights.png",
+                              "fill": "#ffffff",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "bold"
+                            },
+                            {
+                              "id": "YFy4j",
+                              "name": "tagsRow2",
+                              "type": "frame",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "id": "bFQJe",
+                                  "name": "tag2",
+                                  "type": "frame",
+                                  "fill": "#333333",
+                                  "cornerRadius": 2,
+                                  "padding": [
+                                    2,
+                                    6
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": "ytPvb",
+                                      "name": "tagText2",
+                                      "type": "text",
+                                      "content": "City",
+                                      "fill": "#aaaaaa",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 10,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "7xlhD",
+                      "name": "card3",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "fill": "#252526",
+                      "cornerRadius": 8,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "id": "6ik96",
+                          "name": "img3",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "height": 160,
+                          "fill": {
+                            "enabled": true,
+                            "mode": "fill",
+                            "type": "image",
+                            "url": "https://images.unsplash.com/photo-1703104802274-06efef039bc9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w4NDM0ODN8MHwxfHJhbmRvbXx8fHx8fHx8fDE3Njk2ODI2MDV8&ixlib=rb-4.1.0&q=80&w=1080"
+                          },
+                          "metadata": {
+                            "author": "Europeana",
+                            "link": "https://unsplash.com/@europeana",
+                            "type": "unsplash",
+                            "username": "europeana"
+                          }
+                        },
+                        {
+                          "id": "KjOLU",
+                          "name": "meta3",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 12,
+                          "children": [
+                            {
+                              "id": "jprRe",
+                              "name": "title3",
+                              "type": "text",
+                              "content": "Abstract 01.png",
+                              "fill": "#ffffff",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "bold"
+                            },
+                            {
+                              "id": "jQTNA",
+                              "name": "tagsRow3",
+                              "type": "frame",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "id": "XqMdR",
+                                  "name": "tag3",
+                                  "type": "frame",
+                                  "fill": "#333333",
+                                  "cornerRadius": 2,
+                                  "padding": [
+                                    2,
+                                    6
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": "UiMNG",
+                                      "name": "tagText3",
+                                      "type": "text",
+                                      "content": "Art",
+                                      "fill": "#aaaaaa",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 10,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "tT7KB",
+                  "name": "row2",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "gap": 16,
+                  "children": [
+                    {
+                      "id": "NTcGv",
+                      "name": "musicCard",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "fill": "#252526",
+                      "cornerRadius": 8,
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "id": "5YiTa",
+                          "name": "musicThumb",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "height": 160,
+                          "fill": "#333333",
+                          "alignItems": "center",
+                          "justifyContent": "center",
+                          "children": [
+                            {
+                              "id": "WrPaw",
+                              "name": "musicIcon",
+                              "type": "icon_font",
+                              "iconFontFamily": "Material Symbols Rounded",
+                              "iconFontName": "music_note",
+                              "fontSize": 48,
+                              "fill": "#555555"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "Evk0O",
+                          "name": "musicMeta",
+                          "type": "frame",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "padding": 12,
+                          "children": [
+                            {
+                              "id": "nvkmG",
+                              "name": "musicTitle",
+                              "type": "text",
+                              "content": "Symphony No.9.mp3",
+                              "fill": "#ffffff",
+                              "fontFamily": "Inter",
+                              "fontSize": 13,
+                              "fontWeight": "bold"
+                            },
+                            {
+                              "id": "lvWkJ",
+                              "name": "musicTagsRow",
+                              "type": "frame",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "id": "5GC3y",
+                                  "name": "musicTag1",
+                                  "type": "frame",
+                                  "fill": "#333333",
+                                  "cornerRadius": 2,
+                                  "padding": [
+                                    2,
+                                    6
+                                  ],
+                                  "children": [
+                                    {
+                                      "id": "UTwnD",
+                                      "name": "musicTagText1",
+                                      "type": "text",
+                                      "content": "Classical",
+                                      "fill": "#aaaaaa",
+                                      "fontFamily": "Inter",
+                                      "fontSize": 10,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "3XIEj",
+                      "type": "frame",
+                      "width": "fill_container"
+                    },
+                    {
+                      "id": "yZmjr",
+                      "type": "frame",
+                      "width": "fill_container"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "QQpgn",
+          "name": "Detail Panel",
+          "type": "frame",
+          "width": 300,
+          "height": "fill_container",
+          "fill": "#252526",
+          "layout": "vertical",
+          "gap": 16,
+          "padding": 16,
+          "children": [
+            {
+              "id": "Tp7Iq",
+              "name": "musicPlayer",
+              "type": "frame",
+              "width": "fill_container",
+              "height": 200,
+              "fill": "#333333",
+              "cornerRadius": 4,
+              "alignItems": "center",
+              "justifyContent": "center",
+              "children": [
+                {
+                  "id": "cK7Fn",
+                  "type": "icon_font",
+                  "iconFontFamily": "Material Symbols Rounded",
+                  "iconFontName": "music_note",
+                  "fontSize": 64,
+                  "fill": "#555555"
+                },
+                {
+                  "id": "fWcGo",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": 40,
+                  "fill": "#252526",
+                  "y": 160,
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "ck0Yi",
+                      "type": "icon_font",
+                      "iconFontFamily": "Material Symbols Rounded",
+                      "iconFontName": "play_circle",
+                      "fontSize": 24,
+                      "fill": "#ffffff"
+                    },
+                    {
+                      "id": "0b26h",
+                      "type": "frame",
+                      "width": "fill_container",
+                      "height": 4,
+                      "fill": "#555555",
+                      "cornerRadius": 2,
+                      "children": [
+                        {
+                          "id": "Eqqts",
+                          "type": "frame",
+                          "width": "30%",
+                          "height": "fill_container",
+                          "fill": "#4cc71e",
+                          "cornerRadius": 2
+                        }
+                      ]
+                    },
+                    {
+                      "id": "Chlbt",
+                      "type": "text",
+                      "content": "1:20 / 4:32",
+                      "fill": "#cccccc",
+                      "fontFamily": "Inter",
+                      "fontSize": 11
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "FpaGF",
+              "type": "frame",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "id": "d4S0u",
+                  "type": "text",
+                  "content": "Symphony No.9.mp3",
+                  "fill": "#ffffff",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "bold"
+                },
+                {
+                  "id": "Nqb3F",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "content": "Duration",
+                          "fill": "#888888",
+                          "fontSize": 12,
+                          "fontFamily": "Inter"
+                        },
+                        {
+                          "type": "text",
+                          "content": "04:32",
+                          "fill": "#cccccc",
+                          "fontSize": 12,
+                          "fontFamily": "Inter"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "content": "Size",
+                          "fill": "#888888",
+                          "fontSize": 12,
+                          "fontFamily": "Inter"
+                        },
+                        {
+                          "type": "text",
+                          "content": "12.5 MB",
+                          "fill": "#cccccc",
+                          "fontSize": 12,
+                          "fontFamily": "Inter"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "content": "Type",
+                          "fill": "#888888",
+                          "fontSize": 12,
+                          "fontFamily": "Inter"
+                        },
+                        {
+                          "type": "text",
+                          "content": "MP3 Audio",
+                          "fill": "#cccccc",
+                          "fontSize": 12,
+                          "fontFamily": "Inter"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "width": "fill_container",
+              "height": 1,
+              "fill": "#333333"
+            },
+            {
+              "id": "ny0QW",
+              "type": "frame",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "text",
+                  "content": "LYRICS",
+                  "fill": "#888888",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "bold"
+                },
+                {
+                  "id": "bBxTd",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "fill": "#1e1e1e",
+                  "cornerRadius": 4,
+                  "padding": 8,
+                  "stroke": {
+                    "align": "inside",
+                    "fill": "#333333",
+                    "thickness": 1
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "content": "O friends, no more these sounds!\nLet us sing more cheerful songs,\nMore full of joy!\nJoy, bright spark of divinity,\nDaughter of Elysium,\nFire-inspired we tread\nThy sanctuary.\nThy magic power re-unites\nAll that custom has divided...",
+                      "fill": "#aaaaaa",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "hOm7g",
+              "type": "frame",
+              "width": "fill_container",
+              "height": 36,
+              "fill": "#4cc71e",
+              "cornerRadius": 4,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "content": "Save Lyrics",
                   "fill": "#ffffff",
                   "fontFamily": "Inter",
                   "fontSize": 13,

@@ -1,64 +1,69 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 // --- Icons ---
-const IconLibrary = () => (
+const IconLibrary = (): React.JSX.Element => (
   <svg className="navIcon" viewBox="0 0 24 24">
     <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z" />
   </svg>
 )
-const IconFolder = () => (
+const IconFolder = (): React.JSX.Element => (
   <svg className="navIcon" viewBox="0 0 24 24">
     <path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" />
   </svg>
 )
-const IconSmart = () => (
+const IconSmart = (): React.JSX.Element => (
   <svg className="navIcon" viewBox="0 0 24 24">
     <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-2.06 11L15 15.28 12.06 17l.78-3.33-2.59-2.24 3.41-.29L15 8l1.34 3.14 3.41.29-2.59 2.24.78 3.33z" />
   </svg>
 )
-const IconTag = () => (
+const IconTag = (): React.JSX.Element => (
   <svg className="navIcon" viewBox="0 0 24 24">
     <path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z" />
   </svg>
 )
-const IconSettings = () => (
+const IconSettings = (): React.JSX.Element => (
   <svg className="navIcon" viewBox="0 0 24 24">
     <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L3.16 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
   </svg>
 )
-const IconSearch = () => (
+const IconSearch = (): React.JSX.Element => (
   <svg className="searchIcon" viewBox="0 0 24 24">
     <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
   </svg>
 )
-const IconAi = () => (
+const IconAi = (): React.JSX.Element => (
   <svg className="btnIcon" viewBox="0 0 24 24">
     <path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z" />
   </svg>
 )
-const IconAdd = () => (
+const IconAdd = (): React.JSX.Element => (
   <svg className="btnIcon" viewBox="0 0 24 24">
     <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
   </svg>
 )
-const IconMenu = () => (
+const IconMenu = (): React.JSX.Element => (
   <svg className="btnIcon" viewBox="0 0 24 24">
      <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
   </svg>
 )
-const IconClose = () => (
+const IconClose = (): React.JSX.Element => (
   <svg className="navIcon" viewBox="0 0 24 24" style={{ width: 24, height: 24 }}>
     <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
   </svg>
 )
-const IconEdit = () => (
+const IconEdit = (): React.JSX.Element => (
   <svg className="navIcon" viewBox="0 0 24 24">
     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
   </svg>
 )
-const IconDelete = () => (
+const IconDelete = (): React.JSX.Element => (
   <svg className="navIcon" viewBox="0 0 24 24">
     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+  </svg>
+)
+const IconAudio = (): React.JSX.Element => (
+  <svg className="navIcon" viewBox="0 0 24 24">
+    <path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z" />
   </svg>
 )
 
@@ -74,6 +79,9 @@ type MediaRow = {
 }
 type MediaDetails = MediaRow & {
   note: string | null
+  lyrics: string | null
+  duration: number | null
+  size: number
   rating: number
   tags: Array<{ id: string; name: string; source: string; confidence: number | null }>
   sources: string[]
@@ -83,7 +91,7 @@ type SmartFolderRow = { id: string; name: string; ruleJson: string }
 type DuplicateGroupRow = { media: MediaRow; sourceCount: number }
 type AiSuggestion = { title: string; tags: string[] }
 
-type View = 'all' | 'images' | 'videos' | 'smart' | 'duplicates'
+type View = 'all' | 'images' | 'videos' | 'audio' | 'smart' | 'duplicates'
 
 function App(): React.JSX.Element {
   const api = (window as unknown as { api?: typeof window.api }).api
@@ -121,7 +129,7 @@ function App(): React.JSX.Element {
   const [aiBaseUrl, setAiBaseUrl] = useState('')
   const [aiApiKey, setAiApiKey] = useState('')
   const [aiModel, setAiModel] = useState('')
-  const [dragActive, setDragActive] = useState(false)
+  // const [dragActive, setDragActive] = useState(false)
   const [showAppMenu, setShowAppMenu] = useState(false)
   const [aiTotal, setAiTotal] = useState(0)
   const [aiDone, setAiDone] = useState(0)
@@ -140,7 +148,13 @@ function App(): React.JSX.Element {
   const [showSmartDeleteConfirm, setShowSmartDeleteConfirm] = useState(false)
   const [smartDeleteTarget, setSmartDeleteTarget] = useState<SmartFolderRow | null>(null)
 
-  const libraryPath = useMemo(() => status?.libraryPath ?? null, [status])
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [audioPlaying, setAudioPlaying] = useState(false)
+  const [audioTime, setAudioTime] = useState(0)
+  const [audioDuration, setAudioDuration] = useState(0)
+  const [lyricsInput, setLyricsInput] = useState('')
+
+  // const libraryPath = useMemo(() => status?.libraryPath ?? null, [status])
 
   const loadSmartFolders = async (): Promise<void> => {
     if (!api) return
@@ -153,7 +167,15 @@ function App(): React.JSX.Element {
     if (!status?.open) return
     if (view === 'duplicates') {
       const list = await api.duplicates.list(500, 0)
-      setDuplicates(list)
+      const q = query.trim()
+      const t = tagFilter.trim()
+      if (q || t) {
+        const matched = await api.media.search({ query: q || undefined, tag: t || undefined, mimePrefix: null }, 500, 0)
+        const matchedIds = new Set(matched.map((m) => m.id))
+        setDuplicates(list.filter((g) => matchedIds.has(g.media.id)))
+      } else {
+        setDuplicates(list)
+      }
       setItems([])
       return
     }
@@ -165,10 +187,18 @@ function App(): React.JSX.Element {
         return
       }
       const list = await api.smartFolders.listMedia(activeSmartId, 500, 0)
-      setItems(list)
+      const q = query.trim()
+      const t = tagFilter.trim()
+      if (q || t) {
+        const matched = await api.media.search({ query: q || undefined, tag: t || undefined, mimePrefix: null }, 500, 0)
+        const matchedIds = new Set(matched.map((m) => m.id))
+        setItems(list.filter((m) => matchedIds.has(m.id)))
+      } else {
+        setItems(list)
+      }
       return
     }
-    const mimePrefix = view === 'images' ? 'image' : view === 'videos' ? 'video' : null
+    const mimePrefix = view === 'images' ? 'image' : view === 'videos' ? 'video' : view === 'audio' ? 'audio' : null
     if (query.trim() || tagFilter.trim() || mimePrefix) {
       const list = await api.media.search(
         { query: query.trim() || undefined, tag: tagFilter.trim() || undefined, mimePrefix },
@@ -207,19 +237,19 @@ function App(): React.JSX.Element {
       if (!e.dataTransfer) return
       if (!Array.from(e.dataTransfer.types).includes('Files')) return
       e.preventDefault()
-      setDragActive(true)
+      // setDragActive(true)
     }
 
     const onDragLeave = (e: DragEvent): void => {
       e.preventDefault()
-      setDragActive(false)
+      // setDragActive(false)
     }
 
     const onDrop = (e: DragEvent): void => {
       if (!e.dataTransfer) return
       if (!Array.from(e.dataTransfer.types).includes('Files')) return
       e.preventDefault()
-      setDragActive(false)
+      // setDragActive(false)
       const files = Array.from(e.dataTransfer.files)
       const paths = files
         .map((f) => (f as unknown as { path?: string }).path)
@@ -280,8 +310,34 @@ function App(): React.JSX.Element {
       }
       const d = await api.media.getDetails(selectedId)
       setDetails(d)
+      setLyricsInput(d?.lyrics || '')
     })()
   }, [selectedId])
+
+  const formatTime = (seconds: number): string => {
+    const m = Math.floor(seconds / 60)
+    const s = Math.floor(seconds % 60)
+    return `${m}:${s.toString().padStart(2, '0')}`
+  }
+
+  const formatSize = (bytes: number): string => {
+    if (bytes === 0) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
+  }
+
+  const handleSaveLyrics = async (): Promise<void> => {
+    if (!details || !api) return
+    try {
+      const updated = await api.media.setMeta(details.id, { lyrics: lyricsInput })
+      if (updated) setDetails(updated)
+      await loadContent()
+    } catch (e) {
+      setError(formatError(e))
+    }
+  }
 
   const formatError = (e: unknown): string => {
     if (e instanceof Error) return e.message
@@ -566,22 +622,22 @@ function App(): React.JSX.Element {
     }
   }
 
-  const requestDeleteSmartFolder = (sf: SmartFolderRow): void => {
-    setSmartDeleteTarget(sf)
-    setShowSmartDeleteConfirm(true)
-  }
+  // const requestDeleteSmartFolder = (sf: SmartFolderRow): void => {
+  //   setSmartDeleteTarget(sf)
+  //   setShowSmartDeleteConfirm(true)
+  // }
 
-  const handleSaveMeta = async (patch: { title?: string | null; note?: string | null; rating?: number }): Promise<void> => {
-    if (!details) return
-    if (!api) return
-    try {
-      const updated = await api.media.setMeta(details.id, patch)
-      if (updated) setDetails(updated)
-      await loadContent()
-    } catch (e) {
-      setError(formatError(e))
-    }
-  }
+  // const handleSaveMeta = async (patch: { title?: string | null; note?: string | null; rating?: number }): Promise<void> => {
+  //   if (!details) return
+  //   if (!api) return
+  //   try {
+  //     const updated = await api.media.setMeta(details.id, patch)
+  //     if (updated) setDetails(updated)
+  //     await loadContent()
+  //   } catch (e) {
+  //     setError(formatError(e))
+  //   }
+  // }
 
   const handleAddTags = async (): Promise<void> => {
     if (!selectedId) return
@@ -778,6 +834,10 @@ function App(): React.JSX.Element {
              <IconFolder />
             <span>Videos</span>
           </div>
+          <div className={view === 'audio' ? 'nav active' : 'nav'} onClick={() => setView('audio')}>
+             <IconAudio />
+            <span>Audio</span>
+          </div>
           <div className={view === 'duplicates' ? 'nav active' : 'nav'} onClick={() => setView('duplicates')}>
              <IconFolder />
             <span>Duplicates</span>
@@ -846,7 +906,17 @@ function App(): React.JSX.Element {
                             className={isSelected ? 'item selected' : 'item'}
                             onClick={(e) => toggleSelect(m.id, e.metaKey || e.ctrlKey)}
                         >
-                            {m.thumbUrl ? <img className="thumb" src={m.thumbUrl} /> : <div className="thumb placeholder" />}
+                            {m.thumbUrl ? (
+                              <img className="thumb" src={m.thumbUrl} />
+                            ) : m.mime?.startsWith('audio/') ? (
+                              <div className="thumb placeholder" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555' }}>
+                                <svg style={{ width: 48, height: 48, fill: 'currentColor' }} viewBox="0 0 24 24">
+                                  <path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z" />
+                                </svg>
+                              </div>
+                            ) : (
+                              <div className="thumb placeholder" />
+                            )}
                             <div className="caption">
                                 <div className="itemTitle" title={m.title ?? m.originalFilename}>
                                     {view === 'duplicates' ? `${m.title ?? m.originalFilename}（${count}）` : m.title ?? m.originalFilename}
@@ -870,20 +940,82 @@ function App(): React.JSX.Element {
         <aside className="inspector">
             {details ? (
                 <>
-                    <div className="preview">
-                        {details.mime?.startsWith('video/') ? (
-                        <video className="previewMedia" src={details.originalUrl} controls />
-                        ) : (
-                        <img className="previewMedia" src={details.originalUrl} />
-                        )}
-                    </div>
+                    {details.mime?.startsWith('audio/') ? (
+                        <div className="preview" style={{ height: 200, background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                            <div style={{ transform: 'scale(2)', marginBottom: 16, color: '#555' }}>
+                                <IconAudio />
+                            </div>
+                            <audio
+                                ref={audioRef}
+                                src={details.originalUrl}
+                                onPlay={() => setAudioPlaying(true)}
+                                onPause={() => setAudioPlaying(false)}
+                                onTimeUpdate={(e) => setAudioTime(e.currentTarget.currentTime)}
+                                onLoadedMetadata={(e) => setAudioDuration(e.currentTarget.duration)}
+                                onEnded={() => setAudioPlaying(false)}
+                            />
+                            <div style={{ width: '100%', padding: '0 16px', marginTop: 24, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <button 
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        padding: 0,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: 32,
+                                        height: 32,
+                                        color: '#fff'
+                                    }}
+                                    onClick={() => {
+                                    if (audioRef.current) {
+                                        if (audioPlaying) audioRef.current.pause()
+                                        else audioRef.current.play()
+                                    }
+                                }}>
+                                    {audioPlaying ? (
+                                        <svg viewBox="0 0 24 24" style={{width: 32, height: 32, fill: 'currentColor'}}><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                                    ) : (
+                                        <svg viewBox="0 0 24 24" style={{width: 32, height: 32, fill: 'currentColor'}}><path d="M8 5v14l11-7z"/></svg>
+                                    )}
+                                </button>
+                                <div style={{ flex: 1, height: 4, background: '#555', borderRadius: 2, position: 'relative', cursor: 'pointer' }} onClick={(e) => {
+                                    if (audioRef.current) {
+                                        const rect = e.currentTarget.getBoundingClientRect()
+                                        const percent = (e.clientX - rect.left) / rect.width
+                                        audioRef.current.currentTime = percent * audioDuration
+                                    }
+                                }}>
+                                    <div style={{ width: `${(audioTime / (audioDuration || 1)) * 100}%`, height: '100%', background: '#4cc71e', borderRadius: 2 }} />
+                                </div>
+                                <div style={{ fontSize: 11, color: '#ccc', fontFamily: 'Inter', minWidth: 60, textAlign: 'right' }}>
+                                    {formatTime(audioTime)} / {formatTime(audioDuration)}
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="preview">
+                            {details.mime?.startsWith('video/') ? (
+                            <video className="previewMedia" src={details.originalUrl} controls />
+                            ) : (
+                            <img className="previewMedia" src={details.originalUrl} />
+                            )}
+                        </div>
+                    )}
                     
                     <div className="infoSection">
                         <div className="detailTitle">{details.title ?? details.originalFilename}</div>
                         <div className="propsGrid">
+                             {details.mime?.startsWith('audio/') && (
+                                 <div className="propRow">
+                                    <span className="propLabel">Duration</span>
+                                    <span className="propValue">{formatTime(details.duration ? details.duration / 1000 : audioDuration)}</span>
+                                 </div>
+                             )}
                              <div className="propRow">
                                 <span className="propLabel">Size</span>
-                                <span className="propValue">-</span>
+                                <span className="propValue">{formatSize(details.size)}</span>
                              </div>
                              <div className="propRow">
                                 <span className="propLabel">Rating</span>
@@ -946,10 +1078,38 @@ function App(): React.JSX.Element {
                         </div>
                     </div>
 
-                    <button className="aiActionBtn" disabled={busy || aiPhase !== null} onClick={requestAiAutoTag}>
-                        <IconAi />
-                        <span>AI Analyze & Tag</span>
-                    </button>
+                    <div className="divider" />
+
+                    {details.mime?.startsWith('audio/') ? (
+                        <div className="lyricsSection" style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1, minHeight: 0, paddingBottom: 16 }}>
+                             <div style={{ fontSize: 12, fontWeight: 'bold', color: '#888', fontFamily: 'Inter' }}>LYRICS</div>
+                             <textarea 
+                                 style={{ 
+                                     flex: 1, 
+                                     background: '#1e1e1e', 
+                                     border: '1px solid #333', 
+                                     borderRadius: 4, 
+                                     padding: 8, 
+                                     color: '#aaa', 
+                                     fontFamily: 'Inter', 
+                                     fontSize: 12, 
+                                     resize: 'none',
+                                     outline: 'none'
+                                 }}
+                                 value={lyricsInput}
+                                 onChange={(e) => setLyricsInput(e.target.value)}
+                                 placeholder="Paste lyrics here..."
+                             />
+                             <button className="btn btnPrimary" style={{ width: '100%', justifyContent: 'center' }} onClick={handleSaveLyrics}>
+                                 Save Lyrics
+                             </button>
+                        </div>
+                    ) : (
+                        <button className="aiActionBtn" disabled={busy || aiPhase !== null} onClick={requestAiAutoTag}>
+                            <IconAi />
+                            <span>AI Analyze & Tag</span>
+                        </button>
+                    )}
                 </>
             ) : (
                 <div style={{opacity: 0.5, textAlign: 'center', marginTop: 40}}>Select an item to view details</div>

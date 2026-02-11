@@ -24,6 +24,9 @@ export type MediaRow = {
 
 export type MediaDetails = MediaRow & {
   note: string | null
+  lyrics: string | null
+  duration: number | null
+  size: number
   rating: number
   tags: Array<{ id: string; name: string; source: string; confidence: number | null }>
   sources: string[]
@@ -132,14 +135,30 @@ export class LibraryManager {
       const title = path.basename(filePath, ext)
       const importedAt = Date.now()
 
+      let durationMs: number | null = null
+      if (mime?.startsWith('video/') || mime?.startsWith('audio/')) {
+        try {
+          await new Promise<void>((resolve) => {
+            ffmpeg(storedAbs).ffprobe((err, data) => {
+              if (!err && data && data.format && data.format.duration) {
+                durationMs = Math.round(data.format.duration * 1000)
+              }
+              resolve()
+            })
+          })
+        } catch {
+          // ignore
+        }
+      }
+
       const thumbRel = await this.generateThumbnailIfPossible(sha256, storedAbs, mime)
 
       const insert = db.transaction(() => {
         db.prepare(
           `INSERT INTO media (
-            id, sha256, original_filename, stored_path, mime, size, imported_at, title, thumb_path
+            id, sha256, original_filename, stored_path, mime, size, duration_ms, imported_at, title, thumb_path
           ) VALUES (
-            @id, @sha256, @original_filename, @stored_path, @mime, @size, @imported_at, @title, @thumb_path
+            @id, @sha256, @original_filename, @stored_path, @mime, @size, @duration_ms, @imported_at, @title, @thumb_path
           )`
         ).run({
           id: sha256,
@@ -148,6 +167,7 @@ export class LibraryManager {
           stored_path: storedRel,
           mime,
           size: fileStat.size,
+          duration_ms: durationMs,
           imported_at: importedAt,
           title,
           thumb_path: thumbRel
@@ -213,6 +233,9 @@ export class LibraryManager {
           imported_at as importedAt,
           thumb_path as thumbPath,
           note,
+          lyrics,
+          duration_ms as durationMs,
+          size,
           rating
         FROM media
         WHERE id = ?`
@@ -226,6 +249,9 @@ export class LibraryManager {
           importedAt: number
           thumbPath: string | null
           note: string | null
+          lyrics: string | null
+          durationMs: number | null
+          size: number
           rating: number
         }
       | undefined
@@ -259,23 +285,27 @@ export class LibraryManager {
       thumbUrl: row.thumbPath ? `rmthumb://thumb/${row.id}` : null,
       originalUrl: `rmorig://orig/${row.id}`,
       note: row.note,
+      lyrics: row.lyrics,
+      duration: row.durationMs,
+      size: row.size,
       rating: row.rating,
       tags,
       sources
     }
   }
 
-  setMediaMeta(id: string, patch: { title?: string | null; note?: string | null; rating?: number }): void {
+  setMediaMeta(id: string, patch: { title?: string | null; note?: string | null; lyrics?: string | null; rating?: number }): void {
     const db = this.requireDb()
     if (!this.isValidId(id)) throw new Error('Invalid id')
-    const current = db.prepare('SELECT title, note, rating FROM media WHERE id = ?').get(id) as
-      | { title: string | null; note: string | null; rating: number }
+    const current = db.prepare('SELECT title, note, lyrics, rating FROM media WHERE id = ?').get(id) as
+      | { title: string | null; note: string | null; lyrics: string | null; rating: number }
       | undefined
     if (!current) throw new Error('Not found')
     const title = patch.title !== undefined ? patch.title : current.title
     const note = patch.note !== undefined ? patch.note : current.note
+    const lyrics = patch.lyrics !== undefined ? patch.lyrics : current.lyrics
     const rating = patch.rating !== undefined ? patch.rating : current.rating
-    db.prepare('UPDATE media SET title = ?, note = ?, rating = ? WHERE id = ?').run(title, note, rating, id)
+    db.prepare('UPDATE media SET title = ?, note = ?, lyrics = ?, rating = ? WHERE id = ?').run(title, note, lyrics, rating, id)
   }
 
   listTags(query?: string, limit = 50): TagRow[] {
@@ -365,8 +395,27 @@ export class LibraryManager {
     }
 
     if (query) {
-      where.push(`m.id IN (SELECT media_id FROM media_fts WHERE media_fts MATCH ?)`)
-      args.push(query.replace(/"/g, '""'))
+      const ftsQuery = `"${query.replace(/"/g, '""')}"*`
+      const likeQuery = `%${query}%`
+      where.push(
+        `(
+          m.id IN (SELECT media_id FROM media_fts WHERE media_fts MATCH ?)
+          OR m.title LIKE ?
+          OR m.original_filename LIKE ?
+          OR m.note LIKE ?
+          OR m.id IN (
+            SELECT mt.media_id
+            FROM media_tags mt
+            JOIN tags t ON t.id = mt.tag_id
+            WHERE t.name LIKE ?
+          )
+        )`
+      )
+      args.push(ftsQuery)
+      args.push(likeQuery)
+      args.push(likeQuery)
+      args.push(likeQuery)
+      args.push(likeQuery)
     }
 
     if (tag) {
@@ -574,6 +623,13 @@ export class LibraryManager {
   }
 
   applyAiSuggestion(mediaId: string, suggestion: { title?: string; tags?: string[] }): MediaDetails | null {
+    const db = this.requireDb()
+    const mime = db.prepare('SELECT mime FROM media WHERE id = ?').get(mediaId) as { mime: string | null } | undefined
+    // Skip AI for audio
+    if (mime?.mime?.startsWith('audio/')) {
+      return this.getMediaDetails(mediaId)
+    }
+
     const title = suggestion.title?.trim()
     if (title) {
       this.setMediaMeta(mediaId, { title })

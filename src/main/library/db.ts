@@ -20,6 +20,7 @@ export function openDb(dbPath: string): LibraryDb {
       imported_at INTEGER NOT NULL,
       title TEXT,
       note TEXT,
+      lyrics TEXT,
       rating INTEGER NOT NULL DEFAULT 0,
       source_url TEXT,
       thumb_path TEXT
@@ -94,5 +95,13 @@ export function openDb(dbPath: string): LibraryDb {
     FROM media
     WHERE id NOT IN (SELECT media_id FROM media_fts);
   `)
+
+  // Migration: add lyrics column if not exists
+  const tableInfo = db.pragma('table_info(media)') as Array<{ name: string }>
+  const hasLyrics = tableInfo.some((c) => c.name === 'lyrics')
+  if (!hasLyrics) {
+    db.exec('ALTER TABLE media ADD COLUMN lyrics TEXT')
+  }
+
   return db
 }
