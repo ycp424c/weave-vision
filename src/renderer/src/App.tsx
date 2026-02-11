@@ -90,6 +90,7 @@ type TagRow = { id: string; name: string }
 type SmartFolderRow = { id: string; name: string; ruleJson: string }
 type DuplicateGroupRow = { media: MediaRow; sourceCount: number }
 type AiSuggestion = { title: string; tags: string[] }
+const IMAGE_ZOOM_OPTIONS = [1, 1.5, 2, 3]
 
 type View = 'all' | 'images' | 'videos' | 'audio' | 'smart' | 'duplicates'
 
@@ -153,6 +154,8 @@ function App(): React.JSX.Element {
   const [audioTime, setAudioTime] = useState(0)
   const [audioDuration, setAudioDuration] = useState(0)
   const [lyricsInput, setLyricsInput] = useState('')
+  const [imageZoom, setImageZoom] = useState(1)
+  const [showImagePreview, setShowImagePreview] = useState(false)
 
   // const libraryPath = useMemo(() => status?.libraryPath ?? null, [status])
 
@@ -299,6 +302,7 @@ function App(): React.JSX.Element {
     setSelectedId(null)
     setSelection([])
     setDetails(null)
+    setShowImagePreview(false)
   }, [view, activeSmartId])
 
   useEffect(() => {
@@ -311,8 +315,21 @@ function App(): React.JSX.Element {
       const d = await api.media.getDetails(selectedId)
       setDetails(d)
       setLyricsInput(d?.lyrics || '')
+      setImageZoom(1)
+      setShowImagePreview(false)
     })()
   }, [selectedId])
+
+  useEffect(() => {
+    if (!showImagePreview) return
+    const onKeyDown = (e: KeyboardEvent): void => {
+      if (e.key === 'Escape') setShowImagePreview(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [showImagePreview])
 
   const formatTime = (seconds: number): string => {
     const m = Math.floor(seconds / 60)
@@ -994,13 +1011,21 @@ function App(): React.JSX.Element {
                                 </div>
                             </div>
                         </div>
-                    ) : (
+                    ) : details.mime?.startsWith('video/') ? (
                         <div className="preview">
-                            {details.mime?.startsWith('video/') ? (
                             <video className="previewMedia" src={details.originalUrl} controls />
-                            ) : (
+                        </div>
+                    ) : (
+                        <div
+                            className="preview previewClickable"
+                            title="点击全屏预览"
+                            onClick={() => {
+                                setImageZoom(1)
+                                setShowImagePreview(true)
+                            }}
+                        >
                             <img className="previewMedia" src={details.originalUrl} />
-                            )}
+                            <div className="previewHint">点击全屏预览</div>
                         </div>
                     )}
                     
@@ -1508,6 +1533,41 @@ function App(): React.JSX.Element {
               >
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {showImagePreview && details && !details.mime?.startsWith('audio/') && !details.mime?.startsWith('video/') ? (
+        <div className="imagePreviewOverlay" onClick={() => setShowImagePreview(false)}>
+          <div className="imagePreviewShell" onClick={(e) => e.stopPropagation()}>
+            <div className="imagePreviewHeader">
+              <div className="imagePreviewTitle">{details.title ?? details.originalFilename}</div>
+              <div className="imagePreviewControls">
+                {IMAGE_ZOOM_OPTIONS.map((ratio) => (
+                  <button
+                    key={ratio}
+                    className={imageZoom === ratio ? 'imageZoomBtn active' : 'imageZoomBtn'}
+                    onClick={() => setImageZoom(ratio)}
+                  >
+                    {Math.round(ratio * 100)}%
+                  </button>
+                ))}
+                <button className="imagePreviewClose" onClick={() => setShowImagePreview(false)}>
+                  关闭
+                </button>
+              </div>
+            </div>
+            <div className="imagePreviewViewport">
+              <div
+                className="imagePreviewCanvas"
+                style={{
+                  width: `${Math.max(100, imageZoom * 100)}%`,
+                  height: `${Math.max(100, imageZoom * 100)}%`
+                }}
+              >
+                <img className="imagePreviewMedia" src={details.originalUrl} />
+              </div>
             </div>
           </div>
         </div>

@@ -346,6 +346,22 @@ body {
   object-fit: contain;
 }
 
+.previewClickable {
+  cursor: zoom-in;
+  position: relative;
+}
+
+.previewHint {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #f0f0f0;
+  font-size: 11px;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
 .infoSection {
   display: flex;
   flex-direction: column;
@@ -458,6 +474,91 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+}
+
+.imagePreviewOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 1100;
+}
+
+.imagePreviewShell {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.imagePreviewHeader {
+  height: 56px;
+  padding: 0 16px;
+  border-bottom: 1px solid #2f2f2f;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(18, 18, 18, 0.96);
+}
+
+.imagePreviewTitle {
+  color: #e8e8e8;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.imagePreviewControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.imageZoomBtn {
+  border: 1px solid #4a4a4a;
+  background: #2f2f2f;
+  color: #bdbdbd;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.imageZoomBtn.active {
+  border-color: #62cd38;
+  color: #62cd38;
+}
+
+.imagePreviewClose {
+  border: 1px solid #5a5a5a;
+  background: #3a3a3a;
+  color: #f2f2f2;
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.imagePreviewViewport {
+  flex: 1;
+  overflow: auto;
+  background: #101010;
+}
+
+.imagePreviewCanvas {
+  min-width: 100%;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagePreviewMedia {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .modal {
