@@ -82,6 +82,24 @@ export function openDb(dbPath: string): LibraryDb {
       created_at INTEGER NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS folders (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS folder_media (
+      folder_id TEXT NOT NULL,
+      media_id TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      PRIMARY KEY (folder_id, media_id),
+      FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE,
+      FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_folder_media_folder_id ON folder_media(folder_id);
+    CREATE INDEX IF NOT EXISTS idx_folder_media_media_id ON folder_media(media_id);
+
     CREATE TABLE IF NOT EXISTS settings (
       key TEXT PRIMARY KEY,
       value_json TEXT NOT NULL,

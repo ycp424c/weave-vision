@@ -35,6 +35,7 @@ export type MediaDetails = MediaRow & {
 export type TagRow = { id: string; name: string }
 
 export type SmartFolderRow = { id: string; name: string; ruleJson: string }
+export type FolderRow = { id: string; name: string }
 
 export type DuplicateGroupRow = { media: MediaRow; sourceCount: number }
 
@@ -81,6 +82,15 @@ export type ResourceManagerApi = {
     update: (id: string, patch: { name?: string; ruleJson?: string }) => Promise<SmartFolderRow>
     delete: (id: string) => Promise<boolean>
     listMedia: (id: string, limit?: number, offset?: number) => Promise<MediaRow[]>
+  }
+  folders: {
+    list: () => Promise<FolderRow[]>
+    create: (name: string) => Promise<FolderRow>
+    update: (id: string, patch: { name?: string }) => Promise<FolderRow>
+    delete: (id: string) => Promise<boolean>
+    listMedia: (id: string, limit?: number, offset?: number) => Promise<MediaRow[]>
+    addMedia: (folderId: string, mediaIds: string[]) => Promise<boolean>
+    removeMedia: (folderId: string, mediaIds: string[]) => Promise<boolean>
   }
   duplicates: {
     list: (limit?: number, offset?: number) => Promise<DuplicateGroupRow[]>

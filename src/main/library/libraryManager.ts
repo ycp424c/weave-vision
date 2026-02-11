@@ -35,6 +35,7 @@ export type MediaDetails = MediaRow & {
 export type TagRow = { id: string; name: string }
 
 export type SmartFolderRow = { id: string; name: string; ruleJson: string }
+export type FolderRow = { id: string; name: string }
 
 type LibraryConfig = {
   version: number
@@ -380,7 +381,7 @@ export class LibraryManager {
     db.prepare('DELETE FROM media_tags WHERE media_id = ? AND tag_id = ?').run(mediaId, tagId)
   }
 
-  searchMedia(params: { query?: string; tag?: string; mimePrefix?: 'image' | 'video' | null }, limit = 200, offset = 0): MediaRow[] {
+  searchMedia(params: { query?: string; tag?: string; mimePrefix?: 'image' | 'video' | 'audio' | null }, limit = 200, offset = 0): MediaRow[] {
     const db = this.requireDb()
     const query = params.query?.trim() || ''
     const tag = params.tag?.trim() || ''
@@ -540,6 +541,108 @@ export class LibraryManager {
       thumbUrl: r.thumbPath ? `rmthumb://thumb/${r.id}` : null,
       originalUrl: `rmorig://orig/${r.id}`
     }))
+  }
+
+  createFolder(name: string): FolderRow {
+    const db = this.requireDb()
+    const nextName = name.trim() || '普通文件夹'
+    const id = randomUUID()
+    db.prepare('INSERT INTO folders(id, name, created_at) VALUES (?, ?, ?)').run(id, nextName, Date.now())
+    return { id, name: nextName }
+  }
+
+  listFolders(): FolderRow[] {
+    const db = this.requireDb()
+    return db.prepare('SELECT id, name FROM folders ORDER BY created_at DESC').all() as FolderRow[]
+  }
+
+  updateFolder(id: string, patch: { name?: string }): FolderRow {
+    const db = this.requireDb()
+    const row = db.prepare('SELECT id, name FROM folders WHERE id = ?').get(id) as FolderRow | undefined
+    if (!row) throw new Error('Not found')
+    const name = patch.name !== undefined ? patch.name.trim() : row.name
+    if (!name) throw new Error('Invalid name')
+    db.prepare('UPDATE folders SET name = ? WHERE id = ?').run(name, id)
+    return { id, name }
+  }
+
+  deleteFolder(id: string): void {
+    const db = this.requireDb()
+    db.prepare('DELETE FROM folders WHERE id = ?').run(id)
+  }
+
+  listMediaByFolder(id: string, limit = 200, offset = 0): MediaRow[] {
+    const db = this.requireDb()
+    const exists = db.prepare('SELECT id FROM folders WHERE id = ?').get(id) as { id: string } | undefined
+    if (!exists) throw new Error('Not found')
+
+    const rows = db
+      .prepare(
+        `SELECT
+          m.id,
+          m.title,
+          m.original_filename as originalFilename,
+          m.mime,
+          m.imported_at as importedAt,
+          m.thumb_path as thumbPath
+        FROM folder_media fm
+        JOIN media m ON m.id = fm.media_id
+        WHERE fm.folder_id = ?
+        ORDER BY fm.created_at DESC, m.imported_at DESC
+        LIMIT ? OFFSET ?`
+      )
+      .all(id, limit, offset) as Array<{
+      id: string
+      title: string | null
+      originalFilename: string
+      mime: string | null
+      importedAt: number
+      thumbPath: string | null
+    }>
+
+    return rows.map((r) => ({
+      id: r.id,
+      title: r.title,
+      originalFilename: r.originalFilename,
+      mime: r.mime,
+      importedAt: r.importedAt,
+      thumbUrl: r.thumbPath ? `rmthumb://thumb/${r.id}` : null,
+      originalUrl: `rmorig://orig/${r.id}`
+    }))
+  }
+
+  addMediaToFolder(folderId: string, mediaIds: string[]): void {
+    const db = this.requireDb()
+    const folder = db.prepare('SELECT id FROM folders WHERE id = ?').get(folderId) as { id: string } | undefined
+    if (!folder) throw new Error('Folder not found')
+
+    const ids = Array.from(new Set(mediaIds.filter((id) => this.isValidId(id))))
+    if (!ids.length) return
+    const now = Date.now()
+    const tx = db.transaction(() => {
+      for (const mediaId of ids) {
+        db.prepare(
+          `INSERT OR IGNORE INTO folder_media(folder_id, media_id, created_at)
+           VALUES (?, ?, ?)`
+        ).run(folderId, mediaId, now)
+      }
+    })
+    tx()
+  }
+
+  removeMediaFromFolder(folderId: string, mediaIds: string[]): void {
+    const db = this.requireDb()
+    const folder = db.prepare('SELECT id FROM folders WHERE id = ?').get(folderId) as { id: string } | undefined
+    if (!folder) throw new Error('Folder not found')
+
+    const ids = Array.from(new Set(mediaIds.filter((id) => this.isValidId(id))))
+    if (!ids.length) return
+    const tx = db.transaction(() => {
+      for (const mediaId of ids) {
+        db.prepare('DELETE FROM folder_media WHERE folder_id = ? AND media_id = ?').run(folderId, mediaId)
+      }
+    })
+    tx()
   }
 
   listDuplicateGroups(limit = 200, offset = 0): Array<{ media: MediaRow; sourceCount: number }> {

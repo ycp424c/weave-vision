@@ -92,7 +92,7 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, libraryManager: L
     return libraryManager.getMediaDetails(mediaId)
   })
 
-  ipcMain.handle('media:search', async (_event, params: { query?: string; tag?: string; mimePrefix?: 'image' | 'video' | null }, limit?: number, offset?: number) => {
+  ipcMain.handle('media:search', async (_event, params: { query?: string; tag?: string; mimePrefix?: 'image' | 'video' | 'audio' | null }, limit?: number, offset?: number) => {
     return libraryManager.searchMedia(params, limit, offset)
   })
 
@@ -115,6 +115,37 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, libraryManager: L
 
   ipcMain.handle('smartFolders:listMedia', async (_event, id: string, limit?: number, offset?: number) => {
     return libraryManager.listMediaBySmartFolder(id, limit, offset)
+  })
+
+  ipcMain.handle('folders:list', async () => {
+    return libraryManager.listFolders()
+  })
+
+  ipcMain.handle('folders:create', async (_event, name: string) => {
+    return libraryManager.createFolder(name)
+  })
+
+  ipcMain.handle('folders:update', async (_event, id: string, patch: { name?: string }) => {
+    return libraryManager.updateFolder(id, patch)
+  })
+
+  ipcMain.handle('folders:delete', async (_event, id: string) => {
+    libraryManager.deleteFolder(id)
+    return true
+  })
+
+  ipcMain.handle('folders:listMedia', async (_event, id: string, limit?: number, offset?: number) => {
+    return libraryManager.listMediaByFolder(id, limit, offset)
+  })
+
+  ipcMain.handle('folders:addMedia', async (_event, folderId: string, mediaIds: string[]) => {
+    libraryManager.addMediaToFolder(folderId, mediaIds)
+    return true
+  })
+
+  ipcMain.handle('folders:removeMedia', async (_event, folderId: string, mediaIds: string[]) => {
+    libraryManager.removeMediaFromFolder(folderId, mediaIds)
+    return true
   })
 
   ipcMain.handle('duplicates:list', async (_event, limit?: number, offset?: number) => {

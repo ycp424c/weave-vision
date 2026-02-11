@@ -20,10 +20,10 @@ const api = {
     pickFiles: () => ipcRenderer.invoke('media:pickFiles'),
     importFiles: (filePaths: string[]) => ipcRenderer.invoke('media:import', filePaths),
     list: (limit?: number, offset?: number) => ipcRenderer.invoke('media:list', limit, offset),
-    search: (params: { query?: string; tag?: string; mimePrefix?: 'image' | 'video' | null }, limit?: number, offset?: number) =>
+    search: (params: { query?: string; tag?: string; mimePrefix?: 'image' | 'video' | 'audio' | null }, limit?: number, offset?: number) =>
       ipcRenderer.invoke('media:search', params, limit, offset),
     getDetails: (id: string) => ipcRenderer.invoke('media:getDetails', id),
-    setMeta: (id: string, patch: { title?: string | null; note?: string | null; rating?: number }) =>
+    setMeta: (id: string, patch: { title?: string | null; note?: string | null; lyrics?: string | null; rating?: number }) =>
       ipcRenderer.invoke('media:setMeta', id, patch),
     addTags: (mediaId: string, tagNames: string[], source?: 'manual' | 'ai', confidence?: number | null) =>
       ipcRenderer.invoke('media:addTags', mediaId, tagNames, source, confidence),
@@ -40,6 +40,15 @@ const api = {
     update: (id: string, patch: { name?: string; ruleJson?: string }) => ipcRenderer.invoke('smartFolders:update', id, patch),
     delete: (id: string) => ipcRenderer.invoke('smartFolders:delete', id),
     listMedia: (id: string, limit?: number, offset?: number) => ipcRenderer.invoke('smartFolders:listMedia', id, limit, offset)
+  },
+  folders: {
+    list: () => ipcRenderer.invoke('folders:list'),
+    create: (name: string) => ipcRenderer.invoke('folders:create', name),
+    update: (id: string, patch: { name?: string }) => ipcRenderer.invoke('folders:update', id, patch),
+    delete: (id: string) => ipcRenderer.invoke('folders:delete', id),
+    listMedia: (id: string, limit?: number, offset?: number) => ipcRenderer.invoke('folders:listMedia', id, limit, offset),
+    addMedia: (folderId: string, mediaIds: string[]) => ipcRenderer.invoke('folders:addMedia', folderId, mediaIds),
+    removeMedia: (folderId: string, mediaIds: string[]) => ipcRenderer.invoke('folders:removeMedia', folderId, mediaIds)
   },
   duplicates: {
     list: (limit?: number, offset?: number) => ipcRenderer.invoke('duplicates:list', limit, offset)

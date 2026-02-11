@@ -88,11 +88,20 @@ type MediaDetails = MediaRow & {
 }
 type TagRow = { id: string; name: string }
 type SmartFolderRow = { id: string; name: string; ruleJson: string }
+type FolderRow = { id: string; name: string }
 type DuplicateGroupRow = { media: MediaRow; sourceCount: number }
 type AiSuggestion = { title: string; tags: string[] }
 const IMAGE_ZOOM_OPTIONS = [1, 1.5, 2, 3]
+type SidebarSectionKey = 'libraries' | 'smartFolders' | 'folders' | 'tags'
+type SidebarCollapsedState = Record<SidebarSectionKey, boolean>
+const DEFAULT_SIDEBAR_COLLAPSED: SidebarCollapsedState = {
+  libraries: false,
+  smartFolders: false,
+  folders: false,
+  tags: false
+}
 
-type View = 'all' | 'images' | 'videos' | 'audio' | 'smart' | 'duplicates'
+type View = 'all' | 'images' | 'videos' | 'audio' | 'smart' | 'folder' | 'duplicates'
 
 function App(): React.JSX.Element {
   const api = (window as unknown as { api?: typeof window.api }).api
@@ -102,6 +111,8 @@ function App(): React.JSX.Element {
   const [view, setView] = useState<View>('all')
   const [smartFolders, setSmartFolders] = useState<SmartFolderRow[]>([])
   const [activeSmartId, setActiveSmartId] = useState<string | null>(null)
+  const [folders, setFolders] = useState<FolderRow[]>([])
+  const [activeFolderId, setActiveFolderId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [tagFilter, setTagFilter] = useState('')
   const [items, setItems] = useState<MediaRow[]>([])
@@ -118,6 +129,9 @@ function App(): React.JSX.Element {
   const [smartTagSuggestionsOpen, setSmartTagSuggestionsOpen] = useState(false)
   const [smartRatingGte, setSmartRatingGte] = useState('')
   const [smartTitleContains, setSmartTitleContains] = useState('')
+  const [showFolderEditor, setShowFolderEditor] = useState(false)
+  const [folderEditId, setFolderEditId] = useState<string | null>(null)
+  const [folderName, setFolderName] = useState('')
   const [tagInput, setTagInput] = useState('')
   const [tagSuggestions, setTagSuggestions] = useState<TagRow[]>([])
   const [tagSuggestionsOpen, setTagSuggestionsOpen] = useState(false)
@@ -156,6 +170,7 @@ function App(): React.JSX.Element {
   const [lyricsInput, setLyricsInput] = useState('')
   const [imageZoom, setImageZoom] = useState(1)
   const [showImagePreview, setShowImagePreview] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<SidebarCollapsedState>(DEFAULT_SIDEBAR_COLLAPSED)
 
   // const libraryPath = useMemo(() => status?.libraryPath ?? null, [status])
 
@@ -163,6 +178,29 @@ function App(): React.JSX.Element {
     if (!api) return
     const list = await api.smartFolders.list()
     setSmartFolders(list)
+  }
+
+  const loadFolders = async (): Promise<void> => {
+    if (!api) return
+    const list = await api.folders.list()
+    setFolders(list)
+  }
+
+  const normalizeSidebarCollapsed = (raw: unknown): SidebarCollapsedState => {
+    if (!raw || typeof raw !== 'object') return DEFAULT_SIDEBAR_COLLAPSED
+    const obj = raw as Record<string, unknown>
+    return {
+      libraries: typeof obj.libraries === 'boolean' ? obj.libraries : DEFAULT_SIDEBAR_COLLAPSED.libraries,
+      smartFolders: typeof obj.smartFolders === 'boolean' ? obj.smartFolders : DEFAULT_SIDEBAR_COLLAPSED.smartFolders,
+      folders: typeof obj.folders === 'boolean' ? obj.folders : DEFAULT_SIDEBAR_COLLAPSED.folders,
+      tags: typeof obj.tags === 'boolean' ? obj.tags : DEFAULT_SIDEBAR_COLLAPSED.tags
+    }
+  }
+
+  const loadSidebarCollapsed = async (): Promise<void> => {
+    if (!api) return
+    const saved = await api.settings.get('sidebarCollapsed')
+    setSidebarCollapsed(normalizeSidebarCollapsed(saved))
   }
 
   const loadContent = async (): Promise<void> => {
@@ -201,6 +239,24 @@ function App(): React.JSX.Element {
       }
       return
     }
+    if (view === 'folder') {
+      await loadFolders()
+      if (!activeFolderId) {
+        setItems([])
+        return
+      }
+      const list = await api.folders.listMedia(activeFolderId, 500, 0)
+      const q = query.trim()
+      const t = tagFilter.trim()
+      if (q || t) {
+        const matched = await api.media.search({ query: q || undefined, tag: t || undefined, mimePrefix: null }, 500, 0)
+        const matchedIds = new Set(matched.map((m) => m.id))
+        setItems(list.filter((m) => matchedIds.has(m.id)))
+      } else {
+        setItems(list)
+      }
+      return
+    }
     const mimePrefix = view === 'images' ? 'image' : view === 'videos' ? 'video' : view === 'audio' ? 'audio' : null
     if (query.trim() || tagFilter.trim() || mimePrefix) {
       const list = await api.media.search(
@@ -222,6 +278,8 @@ function App(): React.JSX.Element {
       setStatus(s)
       if (s.open) {
         await loadSmartFolders()
+        await loadFolders()
+        await loadSidebarCollapsed()
         const cfg = (await api.settings.get('aiConfig')) as unknown
         const obj = cfg && typeof cfg === 'object' ? (cfg as Record<string, unknown>) : null
         if (obj?.baseUrl) setAiBaseUrl(String(obj.baseUrl))
@@ -283,7 +341,7 @@ function App(): React.JSX.Element {
 
   useEffect(() => {
     void loadContent()
-  }, [status?.open, view, activeSmartId, query, tagFilter])
+  }, [status?.open, view, activeSmartId, activeFolderId, query, tagFilter])
 
   useEffect(() => {
     if (!api) return
@@ -303,7 +361,7 @@ function App(): React.JSX.Element {
     setSelection([])
     setDetails(null)
     setShowImagePreview(false)
-  }, [view, activeSmartId])
+  }, [view, activeSmartId, activeFolderId])
 
   useEffect(() => {
     void (async () => {
@@ -474,8 +532,11 @@ function App(): React.JSX.Element {
       const s = await api.library.create(dir)
       setStatus(s)
       await loadSmartFolders()
+      await loadFolders()
+      await loadSidebarCollapsed()
       setView('all')
       setActiveSmartId(null)
+      setActiveFolderId(null)
       setSelectedId(null)
       await loadContent()
     } catch (e) {
@@ -494,8 +555,11 @@ function App(): React.JSX.Element {
       const s = await api.library.open(dir)
       setStatus(s)
       await loadSmartFolders()
+      await loadFolders()
+      await loadSidebarCollapsed()
       setView('all')
       setActiveSmartId(null)
+      setActiveFolderId(null)
       setSelectedId(null)
       await loadContent()
     } catch (e) {
@@ -526,9 +590,27 @@ function App(): React.JSX.Element {
     await loadTagLibrary(tagLibraryQuery)
   }
 
+  const toggleSidebarSection = (key: SidebarSectionKey): void => {
+    if (!api) return
+    setSidebarCollapsed((prev) => {
+      const next = { ...prev, [key]: !prev[key] }
+      void api.settings.set('sidebarCollapsed', next).catch((e) => {
+        setError(formatError(e))
+      })
+      return next
+    })
+  }
+
   const handleSelectSmart = (id: string): void => {
     setView('smart')
     setActiveSmartId(id)
+    setActiveFolderId(null)
+  }
+
+  const handleSelectFolder = (id: string): void => {
+    setView('folder')
+    setActiveFolderId(id)
+    setActiveSmartId(null)
   }
 
   const resetSmartForm = (): void => {
@@ -543,6 +625,16 @@ function App(): React.JSX.Element {
   const openSmartEditorForCreate = (): void => {
     resetSmartForm()
     setShowSmartEditor(true)
+  }
+
+  const resetFolderForm = (): void => {
+    setFolderEditId(null)
+    setFolderName('')
+  }
+
+  const openFolderEditorForCreate = (): void => {
+    resetFolderForm()
+    setShowFolderEditor(true)
   }
 
   const startEditSmartFolder = (sf: SmartFolderRow): void => {
@@ -571,6 +663,12 @@ function App(): React.JSX.Element {
     }
   }
 
+  const startEditFolder = (folder: FolderRow): void => {
+    setFolderEditId(folder.id)
+    setFolderName(folder.name)
+    setShowFolderEditor(true)
+  }
+
   const toggleSelect = (id: string, additive: boolean): void => {
     if (!additive) {
       setSelection([id])
@@ -584,6 +682,12 @@ function App(): React.JSX.Element {
       setSelectedId(primary)
       return next
     })
+  }
+
+  const getSelectedMediaIds = (): string[] => {
+    if (selection.length) return selection
+    if (selectedId) return [selectedId]
+    return []
   }
 
   const handleSaveSmartFolder = async (): Promise<void> => {
@@ -613,6 +717,7 @@ function App(): React.JSX.Element {
       await loadSmartFolders()
       setView('smart')
       setActiveSmartId(created.id)
+      setActiveFolderId(null)
       setSelectedId(null)
       await loadContent()
     } catch (e) {
@@ -632,6 +737,84 @@ function App(): React.JSX.Element {
         setActiveSmartId(null)
         setView('smart')
       }
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleSaveFolder = async (): Promise<void> => {
+    if (!api) return
+    setBusy(true)
+    try {
+      const name = folderName.trim() || '普通文件夹'
+      const saved = folderEditId ? await api.folders.update(folderEditId, { name }) : await api.folders.create(name)
+      setShowFolderEditor(false)
+      resetFolderForm()
+      await loadFolders()
+      setView('folder')
+      setActiveFolderId(saved.id)
+      setActiveSmartId(null)
+      await loadContent()
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleDeleteFolder = async (id: string): Promise<void> => {
+    if (!api) return
+    setBusy(true)
+    try {
+      await api.folders.delete(id)
+      await loadFolders()
+      if (activeFolderId === id) {
+        setActiveFolderId(null)
+        setView('all')
+      }
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const addSelectionToFolder = async (folderId: string): Promise<void> => {
+    if (!api) return
+    const ids = getSelectedMediaIds()
+    if (!ids.length) {
+      setError('请先选择资源')
+      return
+    }
+    setBusy(true)
+    try {
+      await api.folders.addMedia(folderId, ids)
+      if (view === 'folder' && activeFolderId === folderId) {
+        await loadContent()
+      }
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const removeSelectionFromFolder = async (folderId: string): Promise<void> => {
+    if (!api) return
+    const ids = getSelectedMediaIds()
+    if (!ids.length) {
+      setError('请先选择资源')
+      return
+    }
+    setBusy(true)
+    try {
+      await api.folders.removeMedia(folderId, ids)
+      setSelectedId(null)
+      setSelection([])
+      setDetails(null)
+      await loadContent()
     } catch (e) {
       setError(formatError(e))
     } finally {
@@ -836,47 +1019,109 @@ function App(): React.JSX.Element {
       <div className="layout">
         {/* Sidebar */}
         <aside className="sidebar">
-          <div className="sectionTitle">LIBRARIES</div>
-          <div className={view === 'all' ? 'nav active' : 'nav'} onClick={() => setView('all')}>
-            <IconLibrary />
-            <span>My Resource Library</span>
-          </div>
+          <button className="sectionTitle sectionToggle" onClick={() => toggleSidebarSection('libraries')}>
+            <span>LIBRARIES</span>
+            <span className={sidebarCollapsed.libraries ? 'sectionChevron collapsed' : 'sectionChevron'}>▾</span>
+          </button>
+          {!sidebarCollapsed.libraries ? (
+            <div className={view === 'all' ? 'nav active' : 'nav'} onClick={() => setView('all')}>
+              <IconLibrary />
+              <span>My Resource Library</span>
+            </div>
+          ) : null}
 
-          <div className="sectionTitle">SMART FOLDERS</div>
-          <div className={view === 'images' ? 'nav active' : 'nav'} onClick={() => setView('images')}>
-             <IconFolder />
-            <span>Images</span>
-          </div>
-          <div className={view === 'videos' ? 'nav active' : 'nav'} onClick={() => setView('videos')}>
-             <IconFolder />
-            <span>Videos</span>
-          </div>
-          <div className={view === 'audio' ? 'nav active' : 'nav'} onClick={() => setView('audio')}>
-             <IconAudio />
-            <span>Audio</span>
-          </div>
-          <div className={view === 'duplicates' ? 'nav active' : 'nav'} onClick={() => setView('duplicates')}>
-             <IconFolder />
-            <span>Duplicates</span>
-          </div>
+          <button className="sectionTitle sectionToggle" onClick={() => toggleSidebarSection('smartFolders')}>
+            <span>SMART FOLDERS</span>
+            <span className={sidebarCollapsed.smartFolders ? 'sectionChevron collapsed' : 'sectionChevron'}>▾</span>
+          </button>
+          {!sidebarCollapsed.smartFolders ? (
+            <>
+              <div className={view === 'images' ? 'nav active' : 'nav'} onClick={() => setView('images')}>
+                 <IconFolder />
+                <span>Images</span>
+              </div>
+              <div className={view === 'videos' ? 'nav active' : 'nav'} onClick={() => setView('videos')}>
+                 <IconFolder />
+                <span>Videos</span>
+              </div>
+              <div className={view === 'audio' ? 'nav active' : 'nav'} onClick={() => setView('audio')}>
+                 <IconAudio />
+                <span>Audio</span>
+              </div>
+              <div className={view === 'duplicates' ? 'nav active' : 'nav'} onClick={() => setView('duplicates')}>
+                 <IconFolder />
+                <span>Duplicates</span>
+              </div>
 
-          {smartFolders.map((sf) => (
-             <div key={sf.id} className={view === 'smart' && activeSmartId === sf.id ? 'nav active' : 'nav'} onClick={() => handleSelectSmart(sf.id)}>
-                <IconSmart />
-                <span style={{flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{sf.name}</span>
-                <button className="btnIcon" style={{opacity: 0.5}} onClick={(e) => { e.stopPropagation(); startEditSmartFolder(sf); }}>✎</button>
-             </div>
-          ))}
-          <div className="nav" onClick={() => openSmartEditorForCreate()}>
-            <IconAdd />
-            <span>New Smart Folder</span>
-          </div>
+              {smartFolders.map((sf) => (
+                 <div key={sf.id} className={view === 'smart' && activeSmartId === sf.id ? 'nav active' : 'nav'} onClick={() => handleSelectSmart(sf.id)}>
+                    <IconSmart />
+                    <span style={{flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{sf.name}</span>
+                    <button className="navActionBtn" style={{opacity: 0.5}} onClick={(e) => { e.stopPropagation(); startEditSmartFolder(sf); }}>✎</button>
+                 </div>
+              ))}
+              <div className="nav" onClick={() => openSmartEditorForCreate()}>
+                <IconAdd />
+                <span>New Smart Folder</span>
+              </div>
+            </>
+          ) : null}
 
-          <div className="sectionTitle">TAGS</div>
-          <div className="nav" onClick={() => openTagLibrary()}>
-            <IconTag />
-            <span>Manage Tags</span>
-          </div>
+          <button className="sectionTitle sectionToggle" onClick={() => toggleSidebarSection('folders')}>
+            <span>FOLDERS</span>
+            <span className={sidebarCollapsed.folders ? 'sectionChevron collapsed' : 'sectionChevron'}>▾</span>
+          </button>
+          {!sidebarCollapsed.folders ? (
+            <>
+              {folders.map((folder) => (
+                <div
+                  key={folder.id}
+                  className={view === 'folder' && activeFolderId === folder.id ? 'nav active' : 'nav'}
+                  onClick={() => handleSelectFolder(folder.id)}
+                >
+                  <IconFolder />
+                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{folder.name}</span>
+                  <button
+                    className="navActionBtn"
+                    title="加入当前选中资源"
+                    style={{ opacity: 0.65 }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      void addSelectionToFolder(folder.id)
+                    }}
+                  >
+                    ＋
+                  </button>
+                  <button
+                    className="navActionBtn"
+                    title="编辑文件夹"
+                    style={{ opacity: 0.5 }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      startEditFolder(folder)
+                    }}
+                  >
+                    ✎
+                  </button>
+                </div>
+              ))}
+              <div className="nav" onClick={() => openFolderEditorForCreate()}>
+                <IconAdd />
+                <span>New Folder</span>
+              </div>
+            </>
+          ) : null}
+
+          <button className="sectionTitle sectionToggle" onClick={() => toggleSidebarSection('tags')}>
+            <span>TAGS</span>
+            <span className={sidebarCollapsed.tags ? 'sectionChevron collapsed' : 'sectionChevron'}>▾</span>
+          </button>
+          {!sidebarCollapsed.tags ? (
+            <div className="nav" onClick={() => openTagLibrary()}>
+              <IconTag />
+              <span>Manage Tags</span>
+            </div>
+          ) : null}
 
           <div style={{flex: 1}} />
           <div className="nav" onClick={() => setShowAppMenu(true)}>
@@ -898,6 +1143,15 @@ function App(): React.JSX.Element {
                     />
                 </div>
                 <div className="headerActions">
+                    {view === 'folder' && activeFolderId ? (
+                        <button
+                            className="btn btnSecondary"
+                            disabled={busy || !selectedId}
+                            onClick={() => void removeSelectionFromFolder(activeFolderId)}
+                        >
+                            Remove From Folder
+                        </button>
+                    ) : null}
                     <button className="btn btnPrimary" disabled={busy} onClick={requestAiAutoTag}>
                         <IconAi />
                         <span>AI Tagging</span>
@@ -1252,6 +1506,64 @@ function App(): React.JSX.Element {
                 <button className="btn btnPrimary" disabled={busy} onClick={handleSaveSmartFolder}>
                   {smartEditId ? '更新' : '保存'}
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {showFolderEditor ? (
+        <div
+          className="modalOverlay"
+          onClick={() => {
+            setShowFolderEditor(false)
+            resetFolderForm()
+          }}
+        >
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modalTitle">{folderEditId ? '编辑文件夹' : '新建文件夹'}</div>
+            <div className="modalBody">
+              <input
+                className="searchInput"
+                style={{ background: 'var(--color-panel)', border: '1px solid var(--color-border)', padding: 8, borderRadius: 4 }}
+                value={folderName}
+                placeholder="文件夹名称"
+                onChange={(e) => setFolderName(e.target.value)}
+              />
+              <div className="modalActions" style={{ justifyContent: 'space-between' }}>
+                <div>
+                  {folderEditId ? (
+                    <button
+                      className="btn btnSecondary"
+                      disabled={busy}
+                      onClick={() => {
+                        if (!folderEditId) return
+                        if (!confirm('确认删除该文件夹？文件夹内资源不会被删除。')) return
+                        const id = folderEditId
+                        setShowFolderEditor(false)
+                        resetFolderForm()
+                        void handleDeleteFolder(id)
+                      }}
+                    >
+                      删除
+                    </button>
+                  ) : null}
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    className="btn btnSecondary"
+                    disabled={busy}
+                    onClick={() => {
+                      setShowFolderEditor(false)
+                      resetFolderForm()
+                    }}
+                  >
+                    取消
+                  </button>
+                  <button className="btn btnPrimary" disabled={busy} onClick={() => void handleSaveFolder()}>
+                    {folderEditId ? '更新' : '保存'}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
