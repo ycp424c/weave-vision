@@ -119,6 +119,7 @@ function App(): React.JSX.Element {
   const [duplicates, setDuplicates] = useState<DuplicateGroupRow[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selection, setSelection] = useState<string[]>([])
+  const [lastSelectedId, setLastSelectedId] = useState<string | null>(null)
   const [details, setDetails] = useState<MediaDetails | null>(null)
   const [showSmartEditor, setShowSmartEditor] = useState(false)
   const [smartEditId, setSmartEditId] = useState<string | null>(null)
@@ -170,7 +171,12 @@ function App(): React.JSX.Element {
   const [lyricsInput, setLyricsInput] = useState('')
   const [imageZoom, setImageZoom] = useState(1)
   const [showImagePreview, setShowImagePreview] = useState(false)
+  const [imageCopying, setImageCopying] = useState(false)
+  const [imageCopied, setImageCopied] = useState(false)
+  const imageCopyFeedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [sidebarCollapsed, setSidebarCollapsed] = useState<SidebarCollapsedState>(DEFAULT_SIDEBAR_COLLAPSED)
+  const [draggingMediaIds, setDraggingMediaIds] = useState<string[]>([])
+  const [folderDropTargetId, setFolderDropTargetId] = useState<string | null>(null)
 
   // const libraryPath = useMemo(() => status?.libraryPath ?? null, [status])
 
@@ -359,8 +365,11 @@ function App(): React.JSX.Element {
   useEffect(() => {
     setSelectedId(null)
     setSelection([])
+    setLastSelectedId(null)
     setDetails(null)
     setShowImagePreview(false)
+    setDraggingMediaIds([])
+    setFolderDropTargetId(null)
   }, [view, activeSmartId, activeFolderId])
 
   useEffect(() => {
@@ -375,6 +384,12 @@ function App(): React.JSX.Element {
       setLyricsInput(d?.lyrics || '')
       setImageZoom(1)
       setShowImagePreview(false)
+      setImageCopying(false)
+      setImageCopied(false)
+      if (imageCopyFeedbackTimerRef.current) {
+        clearTimeout(imageCopyFeedbackTimerRef.current)
+        imageCopyFeedbackTimerRef.current = null
+      }
     })()
   }, [selectedId])
 
@@ -388,6 +403,15 @@ function App(): React.JSX.Element {
       window.removeEventListener('keydown', onKeyDown)
     }
   }, [showImagePreview])
+
+  useEffect(() => {
+    return () => {
+      if (imageCopyFeedbackTimerRef.current) {
+        clearTimeout(imageCopyFeedbackTimerRef.current)
+        imageCopyFeedbackTimerRef.current = null
+      }
+    }
+  }, [])
 
   const formatTime = (seconds: number): string => {
     const m = Math.floor(seconds / 60)
@@ -417,6 +441,33 @@ function App(): React.JSX.Element {
   const formatError = (e: unknown): string => {
     if (e instanceof Error) return e.message
     return String(e)
+  }
+
+  const getMediaTypeInfo = (mime: string | null): { label: string; tone: 'video' | 'image' | 'audio' } | null => {
+    if (!mime) return null
+    if (mime.startsWith('video/')) return { label: '视频', tone: 'video' }
+    if (mime.startsWith('image/')) return { label: '图片', tone: 'image' }
+    if (mime.startsWith('audio/')) return { label: '音频', tone: 'audio' }
+    return null
+  }
+
+  const handleCopyImage = async (): Promise<void> => {
+    if (!api || !details) return
+    if (!details.mime?.startsWith('image/')) return
+    setImageCopying(true)
+    try {
+      await api.media.copyImageToClipboard(details.id)
+      setImageCopied(true)
+      if (imageCopyFeedbackTimerRef.current) clearTimeout(imageCopyFeedbackTimerRef.current)
+      imageCopyFeedbackTimerRef.current = setTimeout(() => {
+        setImageCopied(false)
+        imageCopyFeedbackTimerRef.current = null
+      }, 1500)
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setImageCopying(false)
+    }
   }
 
   const parseTagRows = (v: unknown): TagRow[] => {
@@ -669,25 +720,116 @@ function App(): React.JSX.Element {
     setShowFolderEditor(true)
   }
 
-  const toggleSelect = (id: string, additive: boolean): void => {
-    if (!additive) {
-      setSelection([id])
-      setSelectedId(id)
+  const getVisibleMediaIds = (): string[] =>
+    view === 'duplicates' ? duplicates.map((d) => d.media.id) : items.map((m) => m.id)
+
+  const handleSelectItem = (
+    id: string,
+    modifiers: { shiftKey: boolean; metaKey: boolean; ctrlKey: boolean }
+  ): void => {
+    const visibleIds = getVisibleMediaIds()
+    const isAdditive = modifiers.metaKey || modifiers.ctrlKey
+
+    if (modifiers.shiftKey) {
+      const anchorId = lastSelectedId && visibleIds.includes(lastSelectedId) ? lastSelectedId : selectedId
+      if (anchorId && visibleIds.includes(anchorId)) {
+        const from = visibleIds.indexOf(anchorId)
+        const to = visibleIds.indexOf(id)
+        const start = Math.min(from, to)
+        const end = Math.max(from, to)
+        const range = visibleIds.slice(start, end + 1)
+        if (isAdditive) {
+          setSelection((prev) => Array.from(new Set([...prev, ...range])))
+        } else {
+          setSelection(range)
+        }
+        setSelectedId(id)
+        setLastSelectedId(id)
+        return
+      }
+    }
+
+    if (isAdditive) {
+      setSelection((prev) => {
+        const exists = prev.includes(id)
+        const next = exists ? prev.filter((x) => x !== id) : [...prev, id]
+        if (!next.length) {
+          setSelectedId(null)
+        } else if (exists && selectedId === id) {
+          setSelectedId(next[next.length - 1] ?? null)
+        } else {
+          setSelectedId(id)
+        }
+        return next
+      })
+      setLastSelectedId(id)
       return
     }
-    setSelection((prev) => {
-      const exists = prev.includes(id)
-      const next = exists ? prev.filter((x) => x !== id) : [...prev, id]
-      const primary = next[0] ?? null
-      setSelectedId(primary)
-      return next
-    })
+
+    setSelection([id])
+    setSelectedId(id)
+    setLastSelectedId(id)
   }
 
   const getSelectedMediaIds = (): string[] => {
     if (selection.length) return selection
     if (selectedId) return [selectedId]
     return []
+  }
+
+  const parseDraggedMediaIds = (raw: string): string[] => {
+    try {
+      const parsed = JSON.parse(raw) as unknown
+      if (!Array.isArray(parsed)) return []
+      return parsed.map((id) => String(id)).filter(Boolean)
+    } catch {
+      return []
+    }
+  }
+
+  const handleItemDragStart = (event: React.DragEvent<HTMLDivElement>, mediaId: string): void => {
+    const ids = selection.includes(mediaId) ? selection : [mediaId]
+    setDraggingMediaIds(ids)
+    setSelection(ids)
+    setSelectedId(ids[0] ?? null)
+    event.dataTransfer.effectAllowed = 'copyMove'
+    event.dataTransfer.setData('application/x-rm-media-ids', JSON.stringify(ids))
+    event.dataTransfer.setData('text/plain', ids.join(','))
+  }
+
+  const handleItemDragEnd = (): void => {
+    setDraggingMediaIds([])
+    setFolderDropTargetId(null)
+  }
+
+  const handleDropMediaToFolder = async (targetFolderId: string, mediaIds: string[]): Promise<void> => {
+    if (!api) return
+    const ids = Array.from(new Set(mediaIds.filter(Boolean)))
+    if (!ids.length) return
+    setBusy(true)
+    try {
+      if (view === 'folder' && activeFolderId) {
+        if (activeFolderId === targetFolderId) return
+        await api.folders.addMedia(targetFolderId, ids)
+        await api.folders.removeMedia(activeFolderId, ids)
+        setSelection([])
+        setSelectedId(null)
+        setDetails(null)
+        await loadContent()
+        return
+      }
+
+      await api.folders.addMedia(targetFolderId, ids)
+      if (view === 'folder' && activeFolderId === targetFolderId) {
+        await loadContent()
+      }
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+      setDraggingMediaIds([])
+      setFolderDropTargetId(null)
+    }
   }
 
   const handleSaveSmartFolder = async (): Promise<void> => {
@@ -1076,8 +1218,42 @@ function App(): React.JSX.Element {
               {folders.map((folder) => (
                 <div
                   key={folder.id}
-                  className={view === 'folder' && activeFolderId === folder.id ? 'nav active' : 'nav'}
+                  className={[
+                    view === 'folder' && activeFolderId === folder.id ? 'nav active' : 'nav',
+                    folderDropTargetId === folder.id ? 'dropTarget' : ''
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
                   onClick={() => handleSelectFolder(folder.id)}
+                  onDragOver={(e) => {
+                    const hasInternalData =
+                      draggingMediaIds.length > 0 || e.dataTransfer.types.includes('application/x-rm-media-ids')
+                    if (!hasInternalData) return
+                    e.preventDefault()
+                    if (view === 'folder' && activeFolderId && activeFolderId !== folder.id) {
+                      e.dataTransfer.dropEffect = 'move'
+                    } else {
+                      e.dataTransfer.dropEffect = 'copy'
+                    }
+                    setFolderDropTargetId(folder.id)
+                  }}
+                  onDragLeave={(e) => {
+                    const nextNode = e.relatedTarget as Node | null
+                    if (!nextNode || !e.currentTarget.contains(nextNode)) {
+                      setFolderDropTargetId((prev) => (prev === folder.id ? null : prev))
+                    }
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    const raw = e.dataTransfer.getData('application/x-rm-media-ids')
+                    const droppedIds = raw ? parseDraggedMediaIds(raw) : draggingMediaIds
+                    if (!droppedIds.length) {
+                      setFolderDropTargetId(null)
+                      return
+                    }
+                    void handleDropMediaToFolder(folder.id, droppedIds)
+                  }}
                 >
                   <IconFolder />
                   <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{folder.name}</span>
@@ -1171,23 +1347,38 @@ function App(): React.JSX.Element {
                     {(view === 'duplicates' ? duplicates.map((d) => d.media) : items).map((m) => {
                     const count = view === 'duplicates' ? duplicates.find((d) => d.media.id === m.id)?.sourceCount ?? 0 : 0
                     const isSelected = selection.includes(m.id) || selectedId === m.id
+                    const mediaTypeInfo = getMediaTypeInfo(m.mime)
                     return (
                         <div
                             key={m.id}
                             className={isSelected ? 'item selected' : 'item'}
-                            onClick={(e) => toggleSelect(m.id, e.metaKey || e.ctrlKey)}
+                            onClick={(e) =>
+                              handleSelectItem(m.id, {
+                                shiftKey: e.shiftKey,
+                                metaKey: e.metaKey,
+                                ctrlKey: e.ctrlKey
+                              })
+                            }
+                            draggable
+                            onDragStart={(e) => handleItemDragStart(e, m.id)}
+                            onDragEnd={handleItemDragEnd}
                         >
-                            {m.thumbUrl ? (
-                              <img className="thumb" src={m.thumbUrl} />
-                            ) : m.mime?.startsWith('audio/') ? (
-                              <div className="thumb placeholder" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555' }}>
-                                <svg style={{ width: 48, height: 48, fill: 'currentColor' }} viewBox="0 0 24 24">
-                                  <path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z" />
-                                </svg>
-                              </div>
-                            ) : (
-                              <div className="thumb placeholder" />
-                            )}
+                            <div className="thumbWrap">
+                              {m.thumbUrl ? (
+                                <img className="thumb" src={m.thumbUrl} draggable={false} />
+                              ) : m.mime?.startsWith('audio/') ? (
+                                <div className="thumb placeholder" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#555' }}>
+                                  <svg style={{ width: 48, height: 48, fill: 'currentColor' }} viewBox="0 0 24 24">
+                                    <path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z" />
+                                  </svg>
+                                </div>
+                              ) : (
+                                <div className="thumb placeholder" />
+                              )}
+                              {mediaTypeInfo ? (
+                                <span className={`thumbTypeTag thumbTypeTag--${mediaTypeInfo.tone}`}>{mediaTypeInfo.label}</span>
+                              ) : null}
+                            </div>
                             <div className="caption">
                                 <div className="itemTitle" title={m.title ?? m.originalFilename}>
                                     {view === 'duplicates' ? `${m.title ?? m.originalFilename}（${count}）` : m.title ?? m.originalFilename}
@@ -1384,10 +1575,22 @@ function App(): React.JSX.Element {
                              </button>
                         </div>
                     ) : (
-                        <button className="aiActionBtn" disabled={busy || aiPhase !== null} onClick={requestAiAutoTag}>
-                            <IconAi />
-                            <span>AI Analyze & Tag</span>
-                        </button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            <button className="aiActionBtn" disabled={busy || aiPhase !== null} onClick={requestAiAutoTag}>
+                                <IconAi />
+                                <span>AI Analyze & Tag</span>
+                            </button>
+                            {details.mime?.startsWith('image/') ? (
+                                <button
+                                    className="btn btnSecondary"
+                                    style={{ width: '100%', justifyContent: 'center', height: 36 }}
+                                    disabled={imageCopying}
+                                    onClick={() => void handleCopyImage()}
+                                >
+                                    {imageCopying ? '复制中...' : imageCopied ? '已复制' : '复制图片'}
+                                </button>
+                            ) : null}
+                        </div>
                     )}
                 </>
             ) : (

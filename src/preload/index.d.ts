@@ -67,6 +67,7 @@ export type ResourceManagerApi = {
       offset?: number
     ) => Promise<MediaRow[]>
     getDetails: (id: string) => Promise<MediaDetails | null>
+    copyImageToClipboard: (mediaId: string) => Promise<boolean>
     setMeta: (id: string, patch: { title?: string | null; note?: string | null; lyrics?: string | null; rating?: number }) => Promise<MediaDetails | null>
     addTags: (mediaId: string, tagNames: string[], source?: 'manual' | 'ai', confidence?: number | null) => Promise<MediaDetails | null>
     removeTag: (mediaId: string, tagId: string) => Promise<MediaDetails | null>

@@ -168,6 +168,12 @@ body {
   color: var(--text-primary);
 }
 
+.nav.dropTarget {
+  background: rgba(76, 199, 30, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(76, 199, 30, 0.6);
+  color: var(--text-primary);
+}
+
 .navIcon {
   width: 16px;
   height: 16px;
@@ -317,6 +323,38 @@ body {
   object-position: center;
   display: block;
   background: #333333;
+}
+
+.thumbWrap {
+  position: relative;
+}
+
+.thumbTypeTag {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #f8fafc;
+  border: 1px solid transparent;
+  pointer-events: none;
+}
+
+.thumbTypeTag--video {
+  background: rgb(37 99 235 / 85%);
+  border-color: rgb(147 197 253 / 45%);
+}
+
+.thumbTypeTag--image {
+  background: rgb(22 163 74 / 85%);
+  border-color: rgb(134 239 172 / 45%);
+}
+
+.thumbTypeTag--audio {
+  background: rgb(217 119 6 / 85%);
+  border-color: rgb(253 186 116 / 45%);
 }
 
 .caption {

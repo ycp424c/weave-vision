@@ -1,4 +1,4 @@
-import { dialog, ipcMain } from 'electron'
+import { clipboard, dialog, ipcMain, nativeImage } from 'electron'
 import type { BrowserWindow } from 'electron'
 import type { LibraryManager } from './library/libraryManager'
 import { analyzeImageWithOpenAiCompatible } from './ai/openaiCompatible'
@@ -62,6 +62,21 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, libraryManager: L
 
   ipcMain.handle('media:getDetails', async (_event, id: string) => {
     return libraryManager.getMediaDetails(id)
+  })
+
+  ipcMain.handle('media:copyImageToClipboard', async (_event, mediaId: string) => {
+    const details = libraryManager.getMediaDetails(mediaId)
+    if (!details) throw new Error('Not found')
+    if (!details.mime?.startsWith('image/')) throw new Error('仅支持复制图片')
+
+    const originalAbs = libraryManager.resolveOriginalAbsolutePath(mediaId)
+    if (!originalAbs) throw new Error('Not found')
+
+    const image = nativeImage.createFromPath(originalAbs)
+    if (image.isEmpty()) throw new Error('无法读取图片')
+
+    clipboard.writeImage(image)
+    return true
   })
 
   ipcMain.handle('media:setMeta', async (_event, id: string, patch: { title?: string | null; note?: string | null; lyrics?: string | null; rating?: number }) => {
