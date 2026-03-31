@@ -177,6 +177,11 @@ function App(): React.JSX.Element {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<SidebarCollapsedState>(DEFAULT_SIDEBAR_COLLAPSED)
   const [draggingMediaIds, setDraggingMediaIds] = useState<string[]>([])
   const [folderDropTargetId, setFolderDropTargetId] = useState<string | null>(null)
+  const [watermarkRemoving, setWatermarkRemoving] = useState(false)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [watermarkPreview, setWatermarkPreview] = useState<{ mediaId: string; beforeUrl: string; afterDataUrl: string } | null>(null)
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; mediaIds: string[] } | null>(null)
 
   // const libraryPath = useMemo(() => status?.libraryPath ?? null, [status])
 
@@ -410,8 +415,19 @@ function App(): React.JSX.Element {
         clearTimeout(imageCopyFeedbackTimerRef.current)
         imageCopyFeedbackTimerRef.current = null
       }
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current)
+        toastTimerRef.current = null
+      }
     }
   }, [])
+
+  useEffect(() => {
+    if (!contextMenu) return
+    const handleClick = (): void => setContextMenu(null)
+    window.addEventListener('click', handleClick)
+    return () => window.removeEventListener('click', handleClick)
+  }, [contextMenu])
 
   const formatTime = (seconds: number): string => {
     const m = Math.floor(seconds / 60)
@@ -467,6 +483,117 @@ function App(): React.JSX.Element {
       setError(formatError(e))
     } finally {
       setImageCopying(false)
+    }
+  }
+
+  const showToast = (msg: string): void => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    setToastMessage(msg)
+    toastTimerRef.current = setTimeout(() => {
+      setToastMessage(null)
+      toastTimerRef.current = null
+    }, 2500)
+  }
+
+  const remapMediaIds = (ids: string[], fromId: string, toId: string): string[] =>
+    Array.from(new Set(ids.map((id) => (id === fromId ? toId : id))))
+
+  const handleRemoveWatermark = async (): Promise<void> => {
+    if (!api || !details) return
+    if (!details.mime?.startsWith('image/')) return
+    setWatermarkRemoving(true)
+    try {
+      const result = await api.ai.removeWatermark(details.id)
+      setWatermarkPreview({
+        mediaId: details.id,
+        beforeUrl: details.originalUrl,
+        afterDataUrl: result.previewDataUrl
+      })
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setWatermarkRemoving(false)
+    }
+  }
+
+  const handleApplyWatermark = async (): Promise<void> => {
+    if (!api || !watermarkPreview) return
+    setBusy(true)
+    try {
+      const previousId = watermarkPreview.mediaId
+      // Extract raw base64 from data URL
+      const base64 = watermarkPreview.afterDataUrl.replace(/^data:[^;]+;base64,/, '')
+      const updated = await api.ai.applyWatermarkRemoval(previousId, base64)
+      if (updated) {
+        await loadContent()
+        if (updated.id !== previousId) {
+          setSelectedId(updated.id)
+          setSelection((prev) => remapMediaIds(prev, previousId, updated.id))
+          setLastSelectedId((prev) => (prev === previousId ? updated.id : prev))
+          setDetails(updated)
+        } else {
+          const cacheBust = `?t=${Date.now()}`
+          setDetails({
+            ...updated,
+            originalUrl: updated.originalUrl + cacheBust,
+            thumbUrl: updated.thumbUrl ? updated.thumbUrl + cacheBust : null
+          })
+          setItems((prev) =>
+            prev.map((m) =>
+              m.id === updated.id
+                ? {
+                    ...m,
+                    thumbUrl: m.thumbUrl ? m.thumbUrl + cacheBust : null,
+                    originalUrl: m.originalUrl + cacheBust
+                  }
+                : m
+            )
+          )
+          setDuplicates((prev) =>
+            prev.map((group) =>
+              group.media.id === updated.id
+                ? {
+                    ...group,
+                    media: {
+                      ...group.media,
+                      thumbUrl: group.media.thumbUrl ? group.media.thumbUrl + cacheBust : null,
+                      originalUrl: group.media.originalUrl + cacheBust
+                    }
+                  }
+                : group
+            )
+          )
+        }
+      } else {
+        await loadContent()
+      }
+      setWatermarkPreview(null)
+      showToast('AI 去水印完成')
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleDeleteMedia = async (ids: string[]): Promise<void> => {
+    if (!api || !ids.length) return
+    const count = ids.length
+    if (!confirm(`确定删除 ${count} 个资源吗？此操作不可撤销。`)) return
+    setBusy(true)
+    try {
+      await api.mediaActions.delete(ids)
+      if (selectedId && ids.includes(selectedId)) {
+        setSelectedId(null)
+        setDetails(null)
+      }
+      setSelection((prev) => prev.filter((id) => !ids.includes(id)))
+      await loadContent()
+      showToast(`已删除 ${count} 个资源`)
+    } catch (e) {
+      setError(formatError(e))
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -626,8 +753,15 @@ function App(): React.JSX.Element {
     try {
       const files = await api.media.pickFiles()
       if (!files.length) return
-      await api.media.importFiles(files)
+      const result = await api.media.importFiles(files)
       await loadContent()
+      if (result.imported > 0 && result.skipped > 0) {
+        showToast(`已导入 ${result.imported} 个，跳过 ${result.skipped} 个重复文件`)
+      } else if (result.imported > 0) {
+        showToast(`已导入 ${result.imported} 个文件`)
+      } else if (result.skipped > 0) {
+        showToast(`${result.skipped} 个文件已存在，全部跳过`)
+      }
     } catch (e) {
       setError(formatError(e))
     } finally {
@@ -1362,6 +1496,15 @@ function App(): React.JSX.Element {
                             draggable
                             onDragStart={(e) => handleItemDragStart(e, m.id)}
                             onDragEnd={handleItemDragEnd}
+                            onContextMenu={(e) => {
+                              e.preventDefault()
+                              const ids = selection.includes(m.id) ? selection : [m.id]
+                              if (!selection.includes(m.id)) {
+                                setSelection([m.id])
+                                setSelectedId(m.id)
+                              }
+                              setContextMenu({ x: e.clientX, y: e.clientY, mediaIds: ids })
+                            }}
                         >
                             <div className="thumbWrap">
                               {m.thumbUrl ? (
@@ -1576,20 +1719,38 @@ function App(): React.JSX.Element {
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            <button className="aiActionBtn" disabled={busy || aiPhase !== null} onClick={requestAiAutoTag}>
-                                <IconAi />
-                                <span>AI Analyze & Tag</span>
-                            </button>
                             {details.mime?.startsWith('image/') ? (
-                                <button
-                                    className="btn btnSecondary"
-                                    style={{ width: '100%', justifyContent: 'center', height: 36 }}
-                                    disabled={imageCopying}
-                                    onClick={() => void handleCopyImage()}
-                                >
-                                    {imageCopying ? '复制中...' : imageCopied ? '已复制' : '复制图片'}
+                                <>
+                                    <div style={{ display: 'flex', gap: 8 }}>
+                                        <button className="aiActionBtn" style={{ flex: 1 }} disabled={busy || aiPhase !== null} onClick={requestAiAutoTag}>
+                                            <IconAi />
+                                            <span>AI 分析</span>
+                                        </button>
+                                        <button
+                                            className="aiActionBtn"
+                                            style={{ flex: 1 }}
+                                            disabled={busy || watermarkRemoving}
+                                            onClick={() => void handleRemoveWatermark()}
+                                        >
+                                            <IconAi />
+                                            <span>{watermarkRemoving ? '去水印中...' : 'AI 去水印'}</span>
+                                        </button>
+                                    </div>
+                                    <button
+                                        className="btn btnSecondary"
+                                        style={{ width: '100%', justifyContent: 'center', height: 36 }}
+                                        disabled={imageCopying}
+                                        onClick={() => void handleCopyImage()}
+                                    >
+                                        {imageCopying ? '复制中...' : imageCopied ? '已复制' : '复制图片'}
+                                    </button>
+                                </>
+                            ) : (
+                                <button className="aiActionBtn" disabled={busy || aiPhase !== null} onClick={requestAiAutoTag}>
+                                    <IconAi />
+                                    <span>AI Analyze & Tag</span>
                                 </button>
-                            ) : null}
+                            )}
                         </div>
                     )}
                 </>
@@ -1916,6 +2077,15 @@ function App(): React.JSX.Element {
                   AI 命名/打标签
                 </button>
                 <button className="btn btnSecondary"
+                  disabled={busy || watermarkRemoving || !selectedId || !details?.mime?.startsWith('image/')}
+                  onClick={() => {
+                    setShowAppMenu(false)
+                    void handleRemoveWatermark()
+                  }}
+                >
+                  AI 去水印
+                </button>
+                <button className="btn btnSecondary"
                   disabled={busy || aiPhase !== null}
                   onClick={() => {
                     setShowAppMenu(false)
@@ -2053,6 +2223,21 @@ function App(): React.JSX.Element {
         </div>
       ) : null}
 
+      {watermarkRemoving ? (
+        <div className="modalOverlay">
+          <div className="modal">
+            <div className="modalTitle">AI 去水印</div>
+            <div className="modalBody">
+              <div className="aiLoadingRow">
+                <div className="aiSpinner" />
+                <div className="aiLoadingText">正在处理，请稍候...</div>
+              </div>
+              <div className="errorText">AI 正在分析并去除水印，处理时间约 30-120 秒，请勿关闭应用。</div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {showImagePreview && details && !details.mime?.startsWith('audio/') && !details.mime?.startsWith('video/') ? (
         <div className="imagePreviewOverlay" onClick={() => setShowImagePreview(false)}>
           <div className="imagePreviewShell" onClick={(e) => e.stopPropagation()}>
@@ -2088,6 +2273,60 @@ function App(): React.JSX.Element {
         </div>
       ) : null}
       
+      {/* Context Menu */}
+      {contextMenu ? (
+        <div
+          className="contextMenu"
+          style={{ top: contextMenu.y, left: contextMenu.x }}
+          onClick={() => setContextMenu(null)}
+        >
+          <div
+            className="contextMenuItem contextMenuItemDanger"
+            onClick={() => {
+              const ids = [...contextMenu.mediaIds]
+              setContextMenu(null)
+              void handleDeleteMedia(ids)
+            }}
+          >
+            <IconDelete />
+            <span>删除{contextMenu.mediaIds.length > 1 ? ` (${contextMenu.mediaIds.length})` : ''}</span>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Watermark Before/After Preview */}
+      {watermarkPreview ? (
+        <div className="modalOverlay" onClick={() => setWatermarkPreview(null)}>
+          <div className="modal" style={{ width: 700 }} onClick={(e) => e.stopPropagation()}>
+            <div className="modalTitle">AI 去水印预览</div>
+            <div className="modalBody">
+              <div style={{ display: 'flex', gap: 16 }}>
+                <div style={{ flex: 1, textAlign: 'center' }}>
+                  <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>原图</div>
+                  <img src={watermarkPreview.beforeUrl} style={{ width: '100%', borderRadius: 4, border: '1px solid #333' }} />
+                </div>
+                <div style={{ flex: 1, textAlign: 'center' }}>
+                  <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>去水印后</div>
+                  <img src={watermarkPreview.afterDataUrl} style={{ width: '100%', borderRadius: 4, border: '1px solid #333' }} />
+                </div>
+              </div>
+              <div style={{ fontSize: 12, color: '#888' }}>确认后将替换原图，此操作不可撤销。</div>
+              <div className="modalActions">
+                <button className="btn btnSecondary" disabled={busy} onClick={() => setWatermarkPreview(null)}>取消</button>
+                <button className="btn btnPrimary" disabled={busy} onClick={() => void handleApplyWatermark()}>确认替换</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Toast */}
+      {toastMessage ? (
+        <div className="toast" onClick={() => setToastMessage(null)}>
+          {toastMessage}
+        </div>
+      ) : null}
+
       {error ? (
         <div className="modalOverlay" onClick={() => setError(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>

@@ -60,7 +60,12 @@ const api = {
   },
   ai: {
     analyze: (mediaId: string) => ipcRenderer.invoke('ai:analyze', mediaId),
-    apply: (mediaId: string, suggestion: { title?: string; tags?: string[] }) => ipcRenderer.invoke('ai:apply', mediaId, suggestion)
+    apply: (mediaId: string, suggestion: { title?: string; tags?: string[] }) => ipcRenderer.invoke('ai:apply', mediaId, suggestion),
+    removeWatermark: (mediaId: string) => ipcRenderer.invoke('ai:removeWatermark', mediaId),
+    applyWatermarkRemoval: (mediaId: string, base64Data: string) => ipcRenderer.invoke('ai:applyWatermarkRemoval', mediaId, base64Data)
+  },
+  mediaActions: {
+    delete: (mediaIds: string[]) => ipcRenderer.invoke('media:delete', mediaIds)
   }
 }
 

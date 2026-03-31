@@ -103,6 +103,11 @@ export type ResourceManagerApi = {
   ai: {
     analyze: (mediaId: string) => Promise<AiSuggestion>
     apply: (mediaId: string, suggestion: { title?: string; tags?: string[] }) => Promise<MediaDetails | null>
+    removeWatermark: (mediaId: string) => Promise<{ previewDataUrl: string }>
+    applyWatermarkRemoval: (mediaId: string, base64Data: string) => Promise<MediaDetails | null>
+  }
+  mediaActions: {
+    delete: (mediaIds: string[]) => Promise<boolean>
   }
 }
 

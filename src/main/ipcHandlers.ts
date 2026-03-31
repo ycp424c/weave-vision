@@ -1,8 +1,36 @@
 import { clipboard, dialog, ipcMain, nativeImage } from 'electron'
 import type { BrowserWindow } from 'electron'
+import sharp from 'sharp'
 import type { LibraryManager } from './library/libraryManager'
 import { analyzeImageWithOpenAiCompatible } from './ai/openaiCompatible'
+import { removeWatermark } from './ai/watermarkRemoval'
 import { setLastLibraryPath } from './appState'
+
+async function detectImageMime(buffer: Buffer): Promise<string> {
+  try {
+    const metadata = await sharp(buffer).metadata()
+    switch (metadata.format) {
+      case 'jpeg':
+        return 'image/jpeg'
+      case 'png':
+        return 'image/png'
+      case 'webp':
+        return 'image/webp'
+      case 'gif':
+        return 'image/gif'
+      case 'avif':
+        return 'image/avif'
+      case 'heif':
+        return 'image/heif'
+      case 'tiff':
+        return 'image/tiff'
+      default:
+        return 'image/png'
+    }
+  } catch {
+    return 'image/png'
+  }
+}
 
 export function registerIpcHandlers(mainWindow: BrowserWindow, libraryManager: LibraryManager): void {
   ipcMain.handle('library:getStatus', () => {
@@ -192,5 +220,38 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, libraryManager: L
 
   ipcMain.handle('ai:apply', async (_event, mediaId: string, suggestion: { title?: string; tags?: string[] }) => {
     return libraryManager.applyAiSuggestion(mediaId, suggestion)
+  })
+
+  ipcMain.handle('ai:removeWatermark', async (_event, mediaId: string) => {
+    const cfg = libraryManager.getSetting('aiConfig') as
+      | { baseUrl: string; apiKey: string; model: string }
+      | null
+    if (!cfg?.apiKey) {
+      throw new Error('请先在 AI 设置中配置 API Key')
+    }
+    const input = libraryManager.getAiInput(mediaId)
+    if (!input.imageMime.startsWith('image/')) {
+      throw new Error('仅支持图片去水印')
+    }
+    const resultBuffer = await removeWatermark(
+      { apiKey: cfg.apiKey, baseUrl: cfg.baseUrl ?? '' },
+      { imagePath: input.imagePath, imageMime: input.imageMime }
+    )
+    // Return base64 preview for user confirmation (don't replace yet)
+    const previewMime = await detectImageMime(resultBuffer)
+    const base64 = resultBuffer.toString('base64')
+    return { previewDataUrl: `data:${previewMime};base64,${base64}` }
+  })
+
+  ipcMain.handle('ai:applyWatermarkRemoval', async (_event, mediaId: string, base64Data: string) => {
+    const buffer = Buffer.from(base64Data, 'base64')
+    return libraryManager.replaceOriginalFile(mediaId, buffer)
+  })
+
+  ipcMain.handle('media:delete', async (_event, mediaIds: string[]) => {
+    for (const id of mediaIds) {
+      await libraryManager.deleteMedia(id)
+    }
+    return true
   })
 }

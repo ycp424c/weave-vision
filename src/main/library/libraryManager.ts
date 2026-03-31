@@ -42,6 +42,25 @@ type LibraryConfig = {
   createdAt: number
 }
 
+type MediaRecordRow = {
+  id: string
+  sha256: string
+  originalFilename: string
+  storedPath: string
+  mime: string | null
+  size: number
+  width: number | null
+  height: number | null
+  durationMs: number | null
+  importedAt: number
+  title: string | null
+  note: string | null
+  lyrics: string | null
+  rating: number
+  sourceUrl: string | null
+  thumbPath: string | null
+}
+
 export class LibraryManager {
   private libraryPath: string | null = null
   private db: LibraryDb | null = null
@@ -342,6 +361,32 @@ export class LibraryManager {
     })
 
     return tx()
+  }
+
+  async deleteMedia(mediaId: string): Promise<void> {
+    const libraryPath = this.requireLibraryPath()
+    const db = this.requireDb()
+    if (!this.isValidId(mediaId)) throw new Error('Invalid id')
+
+    const row = db.prepare('SELECT stored_path as storedPath, thumb_path as thumbPath FROM media WHERE id = ?').get(mediaId) as
+      | { storedPath: string; thumbPath: string | null }
+      | undefined
+    if (!row) throw new Error('Media not found')
+
+    // Delete files from disk
+    try { await unlink(path.join(libraryPath, row.storedPath)) } catch { /* ignore */ }
+    if (row.thumbPath) {
+      try { await unlink(path.join(libraryPath, row.thumbPath)) } catch { /* ignore */ }
+    }
+
+    // Delete from database
+    const tx = db.transaction(() => {
+      db.prepare('DELETE FROM media_tags WHERE media_id = ?').run(mediaId)
+      db.prepare('DELETE FROM media_sources WHERE media_id = ?').run(mediaId)
+      db.prepare('DELETE FROM folder_media WHERE media_id = ?').run(mediaId)
+      db.prepare('DELETE FROM media WHERE id = ?').run(mediaId)
+    })
+    tx()
   }
 
   deleteTag(tagId: string): void {
@@ -743,6 +788,199 @@ export class LibraryManager {
     return this.getMediaDetails(mediaId)
   }
 
+  async replaceOriginalFile(mediaId: string, newBuffer: Buffer): Promise<MediaDetails | null> {
+    const libraryPath = this.requireLibraryPath()
+    const db = this.requireDb()
+
+    const row = db
+      .prepare(
+        `SELECT
+          id,
+          sha256,
+          original_filename as originalFilename,
+          stored_path as storedPath,
+          mime,
+          size,
+          width,
+          height,
+          duration_ms as durationMs,
+          imported_at as importedAt,
+          title,
+          note,
+          lyrics,
+          rating,
+          source_url as sourceUrl,
+          thumb_path as thumbPath
+        FROM media
+        WHERE id = ?`
+      )
+      .get(mediaId) as
+      | MediaRecordRow
+      | undefined
+    if (!row) throw new Error('Media not found')
+
+    const nextFile = await this.describeReplacementFile(newBuffer, row.storedPath, row.mime)
+    const oldStoredAbs = path.join(libraryPath, row.storedPath)
+    const oldThumbAbs = row.thumbPath ? path.join(libraryPath, row.thumbPath) : null
+
+    if (nextFile.sha256 === mediaId) {
+      const nextStoredRel = this.makeStoredRelativePath(nextFile.sha256, nextFile.ext)
+      const nextStoredAbs = path.join(libraryPath, nextStoredRel)
+      await mkdir(path.dirname(nextStoredAbs), { recursive: true })
+      await writeFile(nextStoredAbs, newBuffer)
+
+      const nextThumbRel = path.join('thumbs', `${mediaId}.jpg`)
+      const nextThumbAbs = path.join(libraryPath, nextThumbRel)
+      await sharp(newBuffer).rotate().resize(320, 320, { fit: 'inside' }).jpeg({ quality: 80 }).toFile(nextThumbAbs)
+
+      db.prepare(
+        `UPDATE media
+         SET stored_path = ?, mime = ?, size = ?, width = ?, height = ?, thumb_path = ?
+         WHERE id = ?`
+      ).run(nextStoredRel, nextFile.mime, newBuffer.length, nextFile.width, nextFile.height, nextThumbRel, mediaId)
+
+      if (nextStoredAbs !== oldStoredAbs) {
+        try {
+          await unlink(oldStoredAbs)
+        } catch {
+          // ignore
+        }
+      }
+
+      return this.getMediaDetails(mediaId)
+    }
+
+    const existingTarget = db
+      .prepare(
+        `SELECT
+          id,
+          sha256,
+          original_filename as originalFilename,
+          stored_path as storedPath,
+          mime,
+          size,
+          width,
+          height,
+          duration_ms as durationMs,
+          imported_at as importedAt,
+          title,
+          note,
+          lyrics,
+          rating,
+          source_url as sourceUrl,
+          thumb_path as thumbPath
+        FROM media
+        WHERE id = ?`
+      )
+      .get(nextFile.sha256) as MediaRecordRow | undefined
+
+    if (existingTarget) {
+      const merged = this.mergeMediaRecord(existingTarget, row)
+      const tx = db.transaction(() => {
+        db.prepare(
+          `UPDATE media
+           SET original_filename = ?, imported_at = ?, title = ?, note = ?, lyrics = ?, rating = ?, source_url = ?
+           WHERE id = ?`
+        ).run(
+          merged.originalFilename,
+          merged.importedAt,
+          merged.title,
+          merged.note,
+          merged.lyrics,
+          merged.rating,
+          merged.sourceUrl,
+          existingTarget.id
+        )
+        this.copyMediaRelations(mediaId, existingTarget.id)
+        db.prepare('DELETE FROM media WHERE id = ?').run(mediaId)
+      })
+      tx()
+
+      try {
+        await unlink(oldStoredAbs)
+      } catch {
+        // ignore
+      }
+      if (oldThumbAbs) {
+        try {
+          await unlink(oldThumbAbs)
+        } catch {
+          // ignore
+        }
+      }
+
+      return this.getMediaDetails(existingTarget.id)
+    }
+
+    const nextStoredRel = this.makeStoredRelativePath(nextFile.sha256, nextFile.ext)
+    const nextStoredAbs = path.join(libraryPath, nextStoredRel)
+    const nextThumbRel = path.join('thumbs', `${nextFile.sha256}.jpg`)
+    const nextThumbAbs = path.join(libraryPath, nextThumbRel)
+
+    await mkdir(path.dirname(nextStoredAbs), { recursive: true })
+    await writeFile(nextStoredAbs, newBuffer)
+    await sharp(newBuffer).rotate().resize(320, 320, { fit: 'inside' }).jpeg({ quality: 80 }).toFile(nextThumbAbs)
+
+    try {
+      const tx = db.transaction(() => {
+        db.prepare(
+          `INSERT INTO media (
+            id, sha256, original_filename, stored_path, mime, size, width, height, duration_ms, imported_at, title, note, lyrics, rating, source_url, thumb_path
+          ) VALUES (
+            @id, @sha256, @original_filename, @stored_path, @mime, @size, @width, @height, @duration_ms, @imported_at, @title, @note, @lyrics, @rating, @source_url, @thumb_path
+          )`
+        ).run({
+          id: nextFile.sha256,
+          sha256: nextFile.sha256,
+          original_filename: row.originalFilename,
+          stored_path: nextStoredRel,
+          mime: nextFile.mime,
+          size: newBuffer.length,
+          width: nextFile.width,
+          height: nextFile.height,
+          duration_ms: row.durationMs,
+          imported_at: row.importedAt,
+          title: row.title,
+          note: row.note,
+          lyrics: row.lyrics,
+          rating: row.rating,
+          source_url: row.sourceUrl,
+          thumb_path: nextThumbRel
+        })
+        this.copyMediaRelations(mediaId, nextFile.sha256)
+        db.prepare('DELETE FROM media WHERE id = ?').run(mediaId)
+      })
+      tx()
+    } catch (error) {
+      try {
+        await unlink(nextStoredAbs)
+      } catch {
+        // ignore
+      }
+      try {
+        await unlink(nextThumbAbs)
+      } catch {
+        // ignore
+      }
+      throw error
+    }
+
+    try {
+      await unlink(oldStoredAbs)
+    } catch {
+      // ignore
+    }
+    if (oldThumbAbs) {
+      try {
+        await unlink(oldThumbAbs)
+      } catch {
+        // ignore
+      }
+    }
+
+    return this.getMediaDetails(nextFile.sha256)
+  }
+
   resolveThumbAbsolutePath(id: string): string | null {
     const libraryPath = this.libraryPath
     const db = this.db
@@ -802,6 +1040,41 @@ export class LibraryManager {
     return path.join('originals', p1, p2, `${sha256}${ext}`)
   }
 
+  private copyMediaRelations(fromMediaId: string, toMediaId: string): void {
+    const db = this.requireDb()
+    db.prepare(
+      `INSERT OR IGNORE INTO media_sources(media_id, source_path, imported_at)
+       SELECT ?, source_path, imported_at
+       FROM media_sources
+       WHERE media_id = ?`
+    ).run(toMediaId, fromMediaId)
+    db.prepare(
+      `INSERT OR IGNORE INTO media_tags(media_id, tag_id, source, confidence, created_at)
+       SELECT ?, tag_id, source, confidence, created_at
+       FROM media_tags
+       WHERE media_id = ?`
+    ).run(toMediaId, fromMediaId)
+    db.prepare(
+      `INSERT OR IGNORE INTO folder_media(folder_id, media_id, created_at)
+       SELECT folder_id, ?, created_at
+       FROM folder_media
+       WHERE media_id = ?`
+    ).run(toMediaId, fromMediaId)
+  }
+
+  private mergeMediaRecord(target: MediaRecordRow, source: MediaRecordRow): MediaRecordRow {
+    return {
+      ...target,
+      originalFilename: target.originalFilename || source.originalFilename,
+      importedAt: Math.min(target.importedAt, source.importedAt),
+      title: target.title || source.title,
+      note: target.note || source.note,
+      lyrics: target.lyrics || source.lyrics,
+      rating: target.rating || source.rating,
+      sourceUrl: target.sourceUrl || source.sourceUrl
+    }
+  }
+
   private async computeSha256(filePath: string): Promise<string> {
     const hash = createHash('sha256')
     await new Promise<void>((resolve, reject) => {
@@ -811,6 +1084,65 @@ export class LibraryManager {
       s.on('error', reject)
     })
     return hash.digest('hex')
+  }
+
+  private computeSha256Buffer(buffer: Buffer): string {
+    return createHash('sha256').update(buffer).digest('hex')
+  }
+
+  private async describeReplacementFile(
+    buffer: Buffer,
+    fallbackStoredPath: string,
+    fallbackMime: string | null
+  ): Promise<{ sha256: string; ext: string; mime: string | null; width: number | null; height: number | null }> {
+    let format: string | undefined
+    let width: number | null = null
+    let height: number | null = null
+
+    try {
+      const metadata = await sharp(buffer).metadata()
+      format = metadata.format
+      width = metadata.width ?? null
+      height = metadata.height ?? null
+    } catch {
+      // ignore and fall back to current file metadata
+    }
+
+    const descriptor = this.resolveStoredDescriptor(format, fallbackStoredPath, fallbackMime)
+    return {
+      sha256: this.computeSha256Buffer(buffer),
+      ext: descriptor.ext,
+      mime: descriptor.mime,
+      width,
+      height
+    }
+  }
+
+  private resolveStoredDescriptor(
+    format: string | undefined,
+    fallbackStoredPath: string,
+    fallbackMime: string | null
+  ): { ext: string; mime: string | null } {
+    switch (format) {
+      case 'jpeg':
+        return { ext: '.jpg', mime: 'image/jpeg' }
+      case 'png':
+        return { ext: '.png', mime: 'image/png' }
+      case 'webp':
+        return { ext: '.webp', mime: 'image/webp' }
+      case 'gif':
+        return { ext: '.gif', mime: 'image/gif' }
+      case 'tiff':
+        return { ext: '.tif', mime: 'image/tiff' }
+      case 'avif':
+        return { ext: '.avif', mime: 'image/avif' }
+      case 'heif':
+        return { ext: '.heif', mime: 'image/heif' }
+      default: {
+        const ext = path.extname(fallbackStoredPath).toLowerCase() || '.bin'
+        return { ext, mime: ((lookupMime(ext) || fallbackMime) as string | null) ?? fallbackMime }
+      }
+    }
   }
 
   private isValidId(id: string): boolean {
