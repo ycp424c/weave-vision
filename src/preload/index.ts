@@ -24,6 +24,7 @@ const api = {
       ipcRenderer.invoke('media:search', params, limit, offset),
     getDetails: (id: string) => ipcRenderer.invoke('media:getDetails', id),
     copyImageToClipboard: (mediaId: string) => ipcRenderer.invoke('media:copyImageToClipboard', mediaId),
+    showInFinder: (mediaId: string) => ipcRenderer.invoke('media:showInFinder', mediaId),
     setMeta: (id: string, patch: { title?: string | null; note?: string | null; lyrics?: string | null; rating?: number }) =>
       ipcRenderer.invoke('media:setMeta', id, patch),
     addTags: (mediaId: string, tagNames: string[], source?: 'manual' | 'ai', confidence?: number | null) =>

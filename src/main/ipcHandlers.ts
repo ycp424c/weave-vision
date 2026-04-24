@@ -1,10 +1,11 @@
-import { clipboard, dialog, ipcMain, nativeImage } from 'electron'
+import { clipboard, dialog, ipcMain, nativeImage, shell } from 'electron'
 import type { BrowserWindow } from 'electron'
 import sharp from 'sharp'
 import type { LibraryManager } from './library/libraryManager'
 import { analyzeImageWithOpenAiCompatible } from './ai/openaiCompatible'
 import { removeWatermark } from './ai/watermarkRemoval'
 import { setLastLibraryPath } from './appState'
+import { showMediaInFinder } from './media/showInFinder'
 
 async function detectImageMime(buffer: Buffer): Promise<string> {
   try {
@@ -105,6 +106,13 @@ export function registerIpcHandlers(mainWindow: BrowserWindow, libraryManager: L
 
     clipboard.writeImage(image)
     return true
+  })
+
+  ipcMain.handle('media:showInFinder', async (_event, mediaId: string) => {
+    return showMediaInFinder(mediaId, {
+      resolveOriginalAbsolutePath: (id: string) => libraryManager.resolveOriginalAbsolutePath(id),
+      showItemInFolder: (absPath: string) => shell.showItemInFolder(absPath)
+    })
   })
 
   ipcMain.handle('media:setMeta', async (_event, id: string, patch: { title?: string | null; note?: string | null; lyrics?: string | null; rating?: number }) => {

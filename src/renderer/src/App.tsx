@@ -486,6 +486,19 @@ function App(): React.JSX.Element {
     }
   }
 
+  const handleShowInFinder = async (mediaId?: string): Promise<void> => {
+    if (!api) return
+    const targetId = mediaId ?? details?.id
+    if (!targetId) return
+    // If caller provides explicit mediaId (e.g. context menu), avoid stale selection race.
+    if (!mediaId && selection.length !== 1) return
+    try {
+      await api.media.showInFinder(targetId)
+    } catch (e) {
+      setError(formatError(e))
+    }
+  }
+
   const showToast = (msg: string): void => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
     setToastMessage(msg)
@@ -1546,6 +1559,7 @@ function App(): React.JSX.Element {
             {details ? (
                 <>
                     {details.mime?.startsWith('audio/') ? (
+                        <>
                         <div className="preview" style={{ height: 200, background: '#333', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                             <div style={{ transform: 'scale(2)', marginBottom: 16, color: '#555' }}>
                                 <IconAudio />
@@ -1599,6 +1613,15 @@ function App(): React.JSX.Element {
                                 </div>
                             </div>
                         </div>
+                        <button
+                            className="btn btnSecondary"
+                            style={{ width: '100%', justifyContent: 'center', height: 36, marginTop: 8 }}
+                            disabled={selection.length !== 1 || !details}
+                            onClick={() => void handleShowInFinder()}
+                        >
+                            在 Finder 中显示
+                        </button>
+                        </>
                     ) : details.mime?.startsWith('video/') ? (
                         <div className="preview">
                             <video className="previewMedia" src={details.originalUrl} controls />
@@ -1744,12 +1767,30 @@ function App(): React.JSX.Element {
                                     >
                                         {imageCopying ? '复制中...' : imageCopied ? '已复制' : '复制图片'}
                                     </button>
+                                    <button
+                                        className="btn btnSecondary"
+                                        style={{ width: '100%', justifyContent: 'center', height: 36 }}
+                                        disabled={selection.length !== 1 || !details}
+                                        onClick={() => void handleShowInFinder()}
+                                    >
+                                        在 Finder 中显示
+                                    </button>
                                 </>
                             ) : (
-                                <button className="aiActionBtn" disabled={busy || aiPhase !== null} onClick={requestAiAutoTag}>
-                                    <IconAi />
-                                    <span>AI Analyze & Tag</span>
-                                </button>
+                                <>
+                                    <button className="aiActionBtn" disabled={busy || aiPhase !== null} onClick={requestAiAutoTag}>
+                                        <IconAi />
+                                        <span>AI Analyze & Tag</span>
+                                    </button>
+                                    <button
+                                        className="btn btnSecondary"
+                                        style={{ width: '100%', justifyContent: 'center', height: 36 }}
+                                        disabled={selection.length !== 1 || !details}
+                                        onClick={() => void handleShowInFinder()}
+                                    >
+                                        在 Finder 中显示
+                                    </button>
+                                </>
                             )}
                         </div>
                     )}
@@ -2280,6 +2321,18 @@ function App(): React.JSX.Element {
           style={{ top: contextMenu.y, left: contextMenu.x }}
           onClick={() => setContextMenu(null)}
         >
+          <div
+            className={contextMenu.mediaIds.length !== 1 ? 'contextMenuItem contextMenuItemDisabled' : 'contextMenuItem'}
+            onClick={() => {
+              const ids = [...contextMenu.mediaIds]
+              if (ids.length !== 1) return
+              const [targetId] = ids
+              setContextMenu(null)
+              void handleShowInFinder(targetId)
+            }}
+          >
+            <span>在 Finder 中显示</span>
+          </div>
           <div
             className="contextMenuItem contextMenuItemDanger"
             onClick={() => {
